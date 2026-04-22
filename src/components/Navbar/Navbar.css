@@ -1,0 +1,111 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  background-color: rgba(13, 15, 14, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--primary);
+  text-decoration: none;
+  transition: opacity 300ms;
+}
+
+.navbar-brand:hover {
+  opacity: 0.8;
+}
+
+.navbar-links {
+  display: none;
+  align-items: center;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .navbar-links {
+    display: flex;
+  }
+}
+
+.navbar-link {
+  font-family: "Manrope", sans-serif;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  transition: color 300ms;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid transparent;
+}
+
+.navbar-link:hover {
+  color: var(--primary);
+}
+
+.navbar-link.active {
+  color: var(--primary);
+  font-weight: 700;
+  border-bottom-color: var(--primary);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 200ms;
+}
+
+.navbar-profile:hover {
+  background-color: var(--surface-container-high);
+}
+
+.navbar-profile .material-symbols-outlined {
+  color: var(--primary);
+}
+
+.navbar-profile-text {
+  display: none;
+  font-family: "Manrope", sans-serif;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+}
+
+@media (min-width: 768px) {
+  .navbar-profile-text {
+    display: block;
+  }
+
+  .navbar-profile:hover .navbar-profile-text {
+    color: var(--primary);
+  }
+}
+
+.navbar-profile:active {
+  transform: scale(0.95);
+}

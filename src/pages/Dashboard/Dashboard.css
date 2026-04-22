@@ -1,0 +1,442 @@
+.dashboard-page {
+  min-height: 100vh;
+  padding-bottom: 6rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-page {
+    padding-bottom: 0;
+  }
+}
+
+.dashboard-main {
+  padding-top: 8rem;
+  padding-bottom: 6rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  margin-bottom: 4rem;
+}
+
+.dashboard-label {
+  font-family: "Manrope", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .dashboard-title {
+    font-size: 3.75rem;
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2rem;
+}
+
+.next-session {
+  grid-column: span 12;
+  background-color: var(--surface-container);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 300ms;
+  border: 1px solid rgba(69, 73, 71, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .next-session {
+    grid-column: span 8;
+  }
+}
+
+.next-session:hover {
+  background-color: var(--surface-container-high);
+}
+
+.next-session-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .next-session-content {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.next-session-info {
+  flex: 1;
+}
+
+.next-session-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  background-color: rgba(136, 212, 204, 0.1);
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.next-session-badge .material-symbols-outlined {
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
+}
+
+.next-session-badge-text {
+  font-family: "Manrope", sans-serif;
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.next-session-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.next-session-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.next-session-detail {
+  display: flex;
+  align-items: center;
+  color: var(--on-surface-variant);
+}
+
+.next-session-detail .material-symbols-outlined {
+  margin-right: 0.75rem;
+}
+
+.next-session-detail span:last-child {
+  font-size: 1.125rem;
+}
+
+.next-session-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.next-session-image {
+  display: none;
+  width: 12rem;
+  aspect-ratio: 1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(69, 73, 71, 0.2);
+}
+
+@media (min-width: 768px) {
+  .next-session-image {
+    display: block;
+  }
+}
+
+.next-session-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+}
+
+.next-session-actions button {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .next-session-actions button {
+    width: auto;
+  }
+}
+
+.season-rank {
+  grid-column: span 12;
+  background-color: var(--surface-container-high);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(69, 73, 71, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .season-rank {
+    grid-column: span 4;
+  }
+}
+
+.season-rank-content {
+  position: relative;
+  z-index: 10;
+}
+
+.season-rank-label {
+  font-family: "Manrope", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--on-surface-variant);
+  font-size: 0.625rem;
+  margin-bottom: 2rem;
+}
+
+.season-rank-position {
+  margin-bottom: 2.5rem;
+}
+
+.season-rank-subtitle {
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  margin-bottom: 0.5rem;
+}
+
+.season-rank-number {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.season-rank-hash {
+  font-family: "Manrope", sans-serif;
+  font-size: 4.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.05em;
+}
+
+.season-rank-total {
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+
+.season-rank-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.season-rank-progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.season-rank-points {
+  font-weight: 700;
+  color: var(--tertiary);
+}
+
+.season-rank-bar {
+  height: 0.5rem;
+  width: 100%;
+  background-color: var(--surface-container);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.season-rank-bar-fill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 9999px;
+}
+
+.season-rank-progress-text {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+.season-rank-performance {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--surface-container-highest);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.season-rank-performance-icon {
+  padding: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(231, 180, 131, 0.1);
+  color: var(--tertiary);
+  display: flex;
+}
+
+.season-rank-performance-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--on-surface-variant);
+}
+
+.season-rank-performance-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.recent-sessions {
+  grid-column: span 12;
+  background-color: var(--surface-container);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  border: 1px solid rgba(69, 73, 71, 0.1);
+}
+
+.recent-sessions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+}
+
+.recent-sessions-label {
+  font-family: "Manrope", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--primary);
+  font-size: 0.625rem;
+  margin-bottom: 0.5rem;
+}
+
+.recent-sessions-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.recent-sessions-view-all {
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 300ms;
+}
+
+.recent-sessions-view-all:hover {
+  color: var(--primary);
+}
+
+.recent-sessions-view-all .material-symbols-outlined {
+  font-size: 0.875rem;
+}
+
+.recent-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.recent-session-item {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  transition: background-color 300ms;
+  cursor: pointer;
+}
+
+.recent-session-item:hover {
+  background-color: var(--surface-container-high);
+}
+
+.recent-session-date {
+  grid-column: span 4;
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .recent-session-date {
+    grid-column: span 3;
+  }
+}
+
+.recent-session-winner {
+  grid-column: span 5;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .recent-session-winner {
+    grid-column: span 6;
+  }
+}
+
+.recent-session-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--on-secondary-container);
+}
+
+.recent-session-name {
+  font-weight: 600;
+}
+
+.recent-session-points {
+  grid-column: span 3;
+  text-align: right;
+}
+
+.recent-session-points-badge {
+  display: inline-block;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  background-color: var(--surface-container-highest);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+}

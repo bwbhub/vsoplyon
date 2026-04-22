@@ -1,0 +1,59 @@
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-label {
+  display: block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  margin-left: 0.25rem;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon .material-symbols-outlined {
+  color: var(--outline);
+  font-size: 1.125rem;
+}
+
+.input {
+  width: 100%;
+  background-color: var(--surface-container-highest);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  color: var(--on-surface);
+  font-size: 1rem;
+  transition: all 300ms;
+  outline: none;
+}
+
+.input-with-icon {
+  padding-left: 3rem;
+}
+
+.input::placeholder {
+  color: rgba(114, 118, 116, 0.5);
+}
+
+.input:focus {
+  box-shadow: 0 0 0 1px var(--primary);
+}
