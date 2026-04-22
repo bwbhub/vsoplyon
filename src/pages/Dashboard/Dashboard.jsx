@@ -1,38 +1,79 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import Button from "../../components/Button/Button";
+import { useAuth } from "../../context/AuthContext";
+import { evenements, scores, tournois, leaderboard } from "../../services/api";
+import {
+  formatDateLong,
+  formatDateShort,
+  formatPoints,
+  avatarColor,
+  initials as initialsOf,
+} from "../../utils/format";
 import "./Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const recentSessions = [
-    {
-      id: 1,
-      date: "Oct 20, 2023",
-      winner: "Alex Chen",
-      initials: "AC",
-      points: 480,
-      bgColor: "var(--secondary-container)",
-    },
-    {
-      id: 2,
-      date: "Oct 13, 2023",
-      winner: "Sarah Miller",
-      initials: "SM",
-      points: 310,
-      bgColor: "rgba(217, 167, 119, 0.3)",
-    },
-    {
-      id: 3,
-      date: "Oct 06, 2023",
-      winner: "Julian Ward",
-      initials: "JW",
-      points: 620,
-      bgColor: "rgba(136, 212, 204, 0.1)",
-    },
-  ];
+  const [upcoming, setUpcoming] = useState(null);
+  const [recent, setRecent] = useState([]);
+  const [currentTournoi, setCurrentTournoi] = useState(null);
+  const [myRank, setMyRank] = useState(null);
+  const [totalPlayers, setTotalPlayers] = useState(0);
+  const [myPoints, setMyPoints] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const [up, rec, tList] = await Promise.all([
+          evenements.upcoming(1),
+          evenements.recent(3),
+          tournois.list(),
+        ]);
+        if (!alive) return;
+        setUpcoming(up?.[0] || null);
+
+        // Pour chaque session recente, recuperer le gagnant (score le plus haut)
+        const recentWithWinners = await Promise.all(
+          (rec || []).map(async (ev) => {
+            try {
+              const rows = await scores.byEvenement(ev.id);
+              return { ...ev, winner: rows?.[0] || null };
+            } catch {
+              return { ...ev, winner: null };
+            }
+          })
+        );
+        if (!alive) return;
+        setRecent(recentWithWinners);
+
+        // Tournoi courant = le plus recent (tri DESC cote API)
+        const current = tList?.[0] || null;
+        setCurrentTournoi(current);
+
+        if (current && user?.id) {
+          const board = await leaderboard.byTournoi(current.id, 500);
+          if (!alive) return;
+          setTotalPlayers(board.length);
+          const idx = board.findIndex((p) => Number(p.id) === Number(user.id));
+          if (idx >= 0) {
+            setMyRank(idx + 1);
+            setMyPoints(Number(board[idx].total) || 0);
+          }
+        }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [user?.id]);
 
   return (
     <div className="dashboard-page">
@@ -40,8 +81,10 @@ function Dashboard() {
 
       <main className="dashboard-main">
         <header className="dashboard-header">
-          <p className="dashboard-label">Member Dashboard</p>
-          <h1 className="dashboard-title">Welcome, Julian.</h1>
+          <p className="dashboard-label">Tableau de bord</p>
+          <h1 className="dashboard-title">
+            Bienvenue, {user?.prenom || user?.pseudo || "joueur"}.
+          </h1>
         </header>
 
         <div className="dashboard-grid">
@@ -57,37 +100,41 @@ function Dashboard() {
                     event_upcoming
                   </span>
                   <span className="next-session-badge-text">
-                    Upcoming Session
+                    Prochaine session
                   </span>
                 </div>
-                <h2 className="next-session-title">Friday Night Social</h2>
-                <div className="next-session-details">
-                  <div className="next-session-detail">
-                    <span className="material-symbols-outlined">
-                      calendar_today
-                    </span>
-                    <span>October 27th, 2023</span>
+                <h2 className="next-session-title">
+                  {upcoming
+                    ? (upcoming.tournoi_nom || "Session")
+                    : loading
+                      ? "Chargement..."
+                      : "Aucune session à venir"}
+                </h2>
+                {upcoming && (
+                  <div className="next-session-details">
+                    <div className="next-session-detail">
+                      <span className="material-symbols-outlined">
+                        calendar_today
+                      </span>
+                      <span>{formatDateLong(upcoming.date)}</span>
+                    </div>
+                    {upcoming.lieu_nom && (
+                      <div className="next-session-detail">
+                        <span className="material-symbols-outlined">
+                          location_on
+                        </span>
+                        <span>{upcoming.lieu_nom}</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="next-session-detail">
-                    <span className="material-symbols-outlined">schedule</span>
-                    <span>19:30 - Late</span>
-                  </div>
-                  <div className="next-session-detail">
-                    <span className="material-symbols-outlined">group</span>
-                    <span>08 / 10 Players Joined</span>
-                  </div>
-                </div>
+                )}
               </div>
               <div className="next-session-actions">
-                <div className="next-session-image">
-                  <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhOYwkImH7pGvqSW9Sfu4SAN19rtAHhuf6Bb9PS0dFJ5WoT-5BK3U_TPjvb4KtGEfPZqeyxruVgd1VcSzmN0MfsPaJYsaFz3iqY5VJwG7SA_YbCSHw8doV66ziUTDmmZtXumk75dXIE4mOfq7p_Zcaxm74fhST0V3yTg0kmbmA22LVNieb66YJP4ZeeHdIbA8dJoHfvjsPo2KrYyxOKS-IaMgseMWpK_QflUvC1-pgg1R6EqqcsTz-un5MfYB8Q9-vS7vXfFuBKuY"
-                    alt="Lounge"
-                  />
-                </div>
-                <Button onClick={() => navigate("/session/upcoming")}>
-                  Join Session
-                </Button>
+                {upcoming && (
+                  <Button onClick={() => navigate(`/session/${upcoming.id}`)}>
+                    Voir la session
+                  </Button>
+                )}
               </div>
             </div>
           </section>
@@ -95,44 +142,55 @@ function Dashboard() {
           <aside className="season-rank">
             <div className="grain-texture"></div>
             <div className="season-rank-content">
-              <p className="season-rank-label">Seasonal Progress</p>
+              <p className="season-rank-label">
+                {currentTournoi ? currentTournoi.nom : "Saison en cours"}
+              </p>
               <div className="season-rank-position">
-                <p className="season-rank-subtitle">Current Position</p>
+                <p className="season-rank-subtitle">Votre position</p>
                 <div className="season-rank-number">
-                  <span className="season-rank-hash">#3</span>
-                  <span className="season-rank-total">of 24</span>
+                  <span className="season-rank-hash">
+                    {myRank ? `#${myRank}` : "—"}
+                  </span>
+                  {totalPlayers > 0 && (
+                    <span className="season-rank-total">sur {totalPlayers}</span>
+                  )}
                 </div>
               </div>
               <div className="season-rank-stats">
                 <div className="season-rank-progress">
                   <div className="season-rank-progress-header">
-                    <span>Points Progress</span>
-                    <span className="season-rank-points">1,450 PTS</span>
+                    <span>Points saison</span>
+                    <span className="season-rank-points">
+                      {formatPoints(myPoints)} PTS
+                    </span>
                   </div>
                   <div className="season-rank-bar">
                     <div
                       className="season-rank-bar-fill"
-                      style={{ width: "72%" }}
+                      style={{
+                        width: totalPlayers
+                          ? `${Math.max(
+                              4,
+                              Math.round(
+                                ((totalPlayers - (myRank || totalPlayers) + 1) /
+                                  totalPlayers) *
+                                  100
+                              )
+                            )}%`
+                          : "0%",
+                      }}
                     ></div>
                   </div>
-                  <p className="season-rank-progress-text">
-                    350 PTS to Rank #2
-                  </p>
-                </div>
-                <div className="season-rank-performance">
-                  <div className="season-rank-performance-icon">
-                    <span className="material-symbols-outlined">
-                      trending_up
-                    </span>
-                  </div>
-                  <div>
-                    <p className="season-rank-performance-label">
-                      Recent Performance
+                  {myRank && myRank > 1 ? (
+                    <p className="season-rank-progress-text">
+                      Encore {myRank - 1} place{myRank - 1 > 1 ? "s" : ""} avant
+                      le podium
                     </p>
-                    <p className="season-rank-performance-value">
-                      +120 PTS Last Session
+                  ) : (
+                    <p className="season-rank-progress-text">
+                      {myRank === 1 ? "Vous dominez la saison" : "Participez à une session pour marquer des points"}
                     </p>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -142,46 +200,67 @@ function Dashboard() {
             <div className="recent-sessions-header">
               <div>
                 <p className="recent-sessions-label">Archive</p>
-                <h3 className="recent-sessions-title">Recent Sessions</h3>
+                <h3 className="recent-sessions-title">Sessions récentes</h3>
               </div>
               <button
                 className="recent-sessions-view-all"
                 onClick={() => navigate("/leaderboard")}
               >
-                View All
+                Tout voir
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
             </div>
             <div className="recent-sessions-list">
-              {recentSessions.map((session, index) => (
-                <div
-                  key={session.id}
-                  className="recent-session-item"
-                  style={{
-                    backgroundColor:
-                      index === 1 ? "rgba(17, 20, 19, 0.5)" : "transparent",
-                  }}
-                  onClick={() => navigate(`/session/${session.id}`)}
-                >
-                  <div className="recent-session-date">{session.date}</div>
-                  <div className="recent-session-winner">
-                    <div
-                      className="recent-session-avatar"
-                      style={{ backgroundColor: session.bgColor }}
-                    >
-                      {session.initials}
-                    </div>
-                    <span className="recent-session-name">
-                      {session.winner}
-                    </span>
-                  </div>
-                  <div className="recent-session-points">
-                    <span className="recent-session-points-badge">
-                      {session.points} PTS
-                    </span>
-                  </div>
+              {loading && recent.length === 0 && (
+                <div className="recent-session-item">
+                  <div className="recent-session-date">Chargement…</div>
                 </div>
-              ))}
+              )}
+              {!loading && recent.length === 0 && (
+                <div className="recent-session-item">
+                  <div className="recent-session-date">Aucune session récente</div>
+                </div>
+              )}
+              {recent.map((session, index) => {
+                const winner = session.winner;
+                const winnerName = winner
+                  ? [winner.prenom, winner.nom].filter(Boolean).join(" ") ||
+                    winner.pseudo
+                  : "—";
+                return (
+                  <div
+                    key={session.id}
+                    className="recent-session-item"
+                    style={{
+                      backgroundColor:
+                        index === 1 ? "rgba(17, 20, 19, 0.5)" : "transparent",
+                    }}
+                    onClick={() => navigate(`/session/${session.id}`)}
+                  >
+                    <div className="recent-session-date">
+                      {formatDateShort(session.date)}
+                    </div>
+                    <div className="recent-session-winner">
+                      <div
+                        className="recent-session-avatar"
+                        style={{
+                          backgroundColor: winner
+                            ? avatarColor(winner.utilisateurid || winner.id)
+                            : "var(--surface-container)",
+                        }}
+                      >
+                        {winner ? initialsOf(winner) : "—"}
+                      </div>
+                      <span className="recent-session-name">{winnerName}</span>
+                    </div>
+                    <div className="recent-session-points">
+                      <span className="recent-session-points-badge">
+                        {winner ? `${formatPoints(winner.score || winner.points)} PTS` : "—"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </div>

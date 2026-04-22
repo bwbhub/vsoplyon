@@ -19,9 +19,9 @@ Ce document décrit le flow de navigation complet de l'application.
 
 ### Dashboard (`/dashboard`)
 **Navigation disponible:**
-- ✅ Logo "The Social Architect" → Retour au `/dashboard`
-- ✅ Navbar: Dashboard (actif) | Leaderboard | Sessions
-- ✅ Bouton "Profile" → Navigue vers `/admin`
+- ✅ Logo "VSOP-LYON" → Retour au `/dashboard`
+- ✅ Navbar: Accueil (actif) | Classement | Sessions
+- ✅ Bouton "Profil/Déconnexion"
 - ✅ Bouton "Join Session" → Navigue vers `/session/upcoming`
 - ✅ Bouton "View All" (sessions récentes) → Navigue vers `/leaderboard`
 - ✅ Clic sur une session récente → Navigue vers `/session/:id`
@@ -29,7 +29,7 @@ Ce document décrit le flow de navigation complet de l'application.
 
 ### Session Result (`/session/:id`)
 **Navigation disponible:**
-- ✅ Logo "The Social Architect" → Retour au `/dashboard`
+- ✅ Logo "VSOP-LYON" → Retour au `/dashboard`
 - ✅ Navbar: Dashboard | Leaderboard | Sessions (actif)
 - ✅ Bouton "Profile" → Navigue vers `/admin`
 - ✅ Bouton "Back to Sessions" → Retour au `/dashboard`
@@ -37,7 +37,7 @@ Ce document décrit le flow de navigation complet de l'application.
 
 ### Leaderboard (`/leaderboard`)
 **Navigation disponible:**
-- ✅ Logo "The Social Architect" → Retour au `/dashboard`
+- ✅ Logo "VSOP-LYON" → Retour au `/dashboard`
 - ✅ Navbar: Dashboard | Leaderboard (actif) | Sessions
 - ✅ Bouton "Profile" → Navigue vers `/admin`
 - ✅ Recherche de joueurs (fonctionnelle)
@@ -49,7 +49,7 @@ Ce document décrit le flow de navigation complet de l'application.
 
 ### Admin Panel (`/admin`)
 **Navigation disponible:**
-- ✅ Logo "The Social Architect" → Retour au `/dashboard`
+- ✅ Logo "VSOP-LYON" → Retour au `/dashboard`
 - ✅ Navbar: Dashboard | Leaderboard | Sessions
 - ✅ Bouton "Profile" → Reste sur `/admin` (actif)
 - ✅ Formulaire "Onboard New Player" (submit handler)

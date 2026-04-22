@@ -1,30 +1,37 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/dashboard" className="navbar-brand">
-          The Social Architect
+          VSOP-LYON
         </Link>
         <div className="navbar-links">
           <Link
             to="/dashboard"
             className={`navbar-link ${isActive("/dashboard") ? "active" : ""}`}
           >
-            Dashboard
+            Accueil
           </Link>
           <Link
             to="/leaderboard"
             className={`navbar-link ${isActive("/leaderboard") ? "active" : ""}`}
           >
-            Leaderboard
+            Classement
           </Link>
           <Link
             to="/session/1"
@@ -32,11 +39,21 @@ function Navbar() {
           >
             Sessions
           </Link>
+          {user?.admin === "Oui" && (
+            <Link
+              to="/admin"
+              className={`navbar-link ${isActive("/admin") ? "active" : ""}`}
+            >
+              Admin
+            </Link>
+          )}
         </div>
         <div className="navbar-actions">
-          <button className="navbar-profile" onClick={() => navigate("/admin")}>
-            <span className="material-symbols-outlined">person</span>
-            <span className="navbar-profile-text">Profile</span>
+          <button className="navbar-profile" onClick={handleLogout} title="Se déconnecter">
+            <span className="material-symbols-outlined">logout</span>
+            <span className="navbar-profile-text">
+              {user ? (user.prenom || user.pseudo || "Profil") : "Profil"}
+            </span>
           </button>
         </div>
       </div>

@@ -2,19 +2,32 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
+import { useAuth } from "../../context/AuthContext";
 import "./Auth.css";
 
 function Auth() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
-    email: "",
+    login: "",
     password: "",
     remember: false,
   });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/dashboard");
+    setError(null);
+    setLoading(true);
+    try {
+      await login(formData.login.trim(), formData.password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Identifiants invalides");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -29,42 +42,42 @@ function Auth() {
     <div className="auth-page">
       <main className="auth-container">
         <div className="auth-brand">
-          <h1 className="auth-title">The Social Architect</h1>
+          <h1 className="auth-title">VSOP-LYON</h1>
           <div className="auth-subtitle">
             <span className="auth-divider"></span>
-            <span className="auth-subtitle-text">Member Access</span>
+            <span className="auth-subtitle-text">Espace Membre</span>
             <span className="auth-divider"></span>
           </div>
         </div>
 
         <div className="auth-card">
           <header className="auth-header">
-            <h2 className="auth-heading">Welcome Back</h2>
+            <h2 className="auth-heading">Bon retour</h2>
             <p className="auth-description">
-              Please enter your credentials to enter the club.
+              Entrez vos identifiants pour accéder au club.
             </p>
           </header>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <Input
-              label="Email Address"
-              icon="mail"
-              type="email"
-              id="email"
-              name="email"
-              placeholder="name@architect.com"
+              label="Pseudo ou e-mail"
+              icon="person"
+              type="text"
+              id="login"
+              name="login"
+              placeholder="votre pseudo ou email"
               required
-              value={formData.email}
+              value={formData.login}
               onChange={handleChange}
             />
 
             <div className="input-group">
               <div className="input-label-row">
                 <label htmlFor="password" className="input-label">
-                  Password
+                  Mot de passe
                 </label>
                 <a href="#" className="auth-forgot">
-                  Forgot?
+                  Oublié ?
                 </a>
               </div>
               <div className="input-wrapper">
@@ -94,20 +107,26 @@ function Auth() {
                 onChange={handleChange}
               />
               <label htmlFor="remember" className="auth-remember-label">
-                Stay signed in for this session
+                Rester connecté sur cette session
               </label>
             </div>
 
-            <Button type="submit" className="auth-submit">
-              Enter the Hearth
+            {error && (
+              <p style={{ color: "#e57373", fontSize: "0.875rem", margin: 0 }}>
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" className="auth-submit" disabled={loading}>
+              {loading ? "Connexion..." : "Entrer dans le club"}
             </Button>
           </form>
 
           <footer className="auth-footer">
             <p className="auth-footer-text">
-              Not a member yet?
+              Pas encore membre ?
               <a href="#" className="auth-signup">
-                Apply for Membership
+                Demander une adhésion
               </a>
             </p>
           </footer>

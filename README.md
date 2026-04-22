@@ -1,10 +1,10 @@
-# The Social Architect - Poker Web App
+# VSOP-LYON - Poker Web App
 
-Une application React moderne pour gérer des sessions de poker entre amis, avec un design system sophistiqué inspiré d'un club privé.
+Une application React moderne pour gérer les sessions de poker du club VSOP-LYON. Backend PHP/MySQL hébergé sur OVH, frontend React/Vite déployé sur Vercel.
 
 ## 🎨 Design System
 
-L'application suit la charte graphique "The Hearthside Lounge" définie dans `ressources/Design.md` :
+L'application suit la charte graphique définie dans `ressources/Design.md` :
 - **Palette**: Soft Dark Mode avec primary (#88d4cc), tertiary (#e7b483)
 - **Typographie**: Manrope pour un look éditorial premium
 - **Principe**: Pas de bordures 1px, uniquement des changements de couleur de surface
