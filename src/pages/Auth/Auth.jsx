@@ -122,14 +122,6 @@ function Auth() {
             </Button>
           </form>
 
-          <footer className="auth-footer">
-            <p className="auth-footer-text">
-              Pas encore membre ?
-              <a href="#" className="auth-signup">
-                Demander une adhésion
-              </a>
-            </p>
-          </footer>
         </div>
 
         <div className="auth-ornament auth-ornament-top"></div>
