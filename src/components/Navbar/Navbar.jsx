@@ -49,11 +49,22 @@ function Navbar() {
           )}
         </div>
         <div className="navbar-actions">
-          <button className="navbar-profile" onClick={handleLogout} title="Se déconnecter">
-            <span className="material-symbols-outlined">logout</span>
+          <button
+            className="navbar-profile"
+            onClick={() => navigate("/profile")}
+            title="Mon profil"
+          >
+            <span className="material-symbols-outlined">account_circle</span>
             <span className="navbar-profile-text">
               {user ? (user.prenom || user.pseudo || "Profil") : "Profil"}
             </span>
+          </button>
+          <button
+            className="navbar-profile navbar-logout"
+            onClick={handleLogout}
+            title="Se déconnecter"
+          >
+            <span className="material-symbols-outlined">logout</span>
           </button>
         </div>
       </div>

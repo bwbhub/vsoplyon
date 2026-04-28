@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import SessionResult from './pages/SessionResult/SessionResult'
 import Leaderboard from './pages/Leaderboard/Leaderboard'
 import AdminPanel from './pages/AdminPanel/AdminPanel'
+import Profile from './pages/Profile/Profile'
 
 function App() {
   return (
@@ -41,6 +42,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

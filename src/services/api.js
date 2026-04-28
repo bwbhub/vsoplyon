@@ -119,6 +119,11 @@ export const leaderboard = {
   allTime:   (limit = 100)          => request('/leaderboard', { params: { all: 1, limit } }),
 }
 
+/* -------- Stats joueur (kills, tables finales, etc.) -------- */
+export const stats = {
+  byUser: (utilisateur = 'me') => request('/stats', { params: { utilisateur } }),
+}
+
 /* -------- Participations (Je viens) -------- */
 export const participations = {
   byEvenement: (evenement) => request('/participations', { params: { evenement } }),
@@ -127,4 +132,4 @@ export const participations = {
   leave:       (evenement)   => request('/participations', { method: 'DELETE', params: { evenement } }),
 }
 
-export default { auth, users, tournois, lieux, evenements, scores, leaderboard, participations }
+export default { auth, users, tournois, lieux, evenements, scores, leaderboard, stats, participations }
