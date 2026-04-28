@@ -48,14 +48,17 @@ create table lieu (
 );
 
 -- ---------------------------------------------------------------------
--- tournoi  (saison / championnat)
+-- tournoi  (= SAISON de jeu)
+--   * une "saison" se termine quand un evenement de type 'finale' est joue
+--   * `numero` = saison N de l'annee (1, 2, 3...)
 -- ---------------------------------------------------------------------
 create table tournoi (
   id          bigserial primary key,
   nom         text        not null,
-  saison      text,                                -- ex: "2025-2026"
+  annee       integer,                             -- ex: 2026
+  numero      integer,                             -- ex: 2  (= saison 2 de 2026)
   date_debut  date,
-  date_fin    date,
+  date_fin    date,                                -- non null = saison cloturee
   created_at  timestamptz not null default now()
 );
 
@@ -69,6 +72,8 @@ create table evenement (
   tournoi_id  bigint      references tournoi(id) on delete set null,
   nom         text,
   description text,
+  type        text        not null default 'normal'
+              check (type in ('normal', 'finale')),
   annulation  boolean     not null default false,
   created_at  timestamptz not null default now()
 );

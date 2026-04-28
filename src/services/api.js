@@ -79,10 +79,13 @@ export const users = {
   remove: (id)   => request('/users', { method: 'DELETE', params: { id } }),
 }
 
-/* -------- Tournois -------- */
+/* -------- Tournois (= Saisons) -------- */
 export const tournois = {
-  list: ()   => request('/tournois'),
-  get:  (id) => request('/tournois', { params: { id } }),
+  list:   ()    => request('/tournois'),
+  get:    (id)  => request('/tournois', { params: { id } }),
+  active: ()    => request('/tournois', { params: { active: 1 } }),
+  create: (data) => request('/tournois', { method: 'POST', body: data }),
+  close:  (id)  => request('/tournois', { method: 'POST', params: { action: 'close' }, body: { id } }),
 }
 
 /* -------- Lieux -------- */
@@ -97,6 +100,9 @@ export const evenements = {
   upcoming: (limit = 1) => request('/evenements', { params: { upcoming: 1, limit } }),
   recent:   (limit = 5) => request('/evenements', { params: { recent: 1, limit } }),
   byTournoi: (tournoi)  => request('/evenements', { params: { tournoi } }),
+  create: (data)         => request('/evenements', { method: 'POST', body: data }),
+  update: (id, data)     => request('/evenements', { method: 'PATCH', body: data, params: { id } }),
+  remove: (id)           => request('/evenements', { method: 'DELETE', params: { id } }),
 }
 
 /* -------- Scores -------- */

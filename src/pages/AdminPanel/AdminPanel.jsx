@@ -253,8 +253,8 @@ function AdminPanel() {
               </div>
 
               <form className="admin-session-form" onSubmit={handleSessionSubmit}>
-                <div className="admin-form-row" style={{ marginBottom: "1rem" }}>
-                  <div className="input-group">
+                <div className="admin-form-row" style={{ marginBottom: "1rem", gap: "0.75rem" }}>
+                  <div className="input-group" style={{ flex: 2 }}>
                     <label className="input-label">Session</label>
                     <div className="input-wrapper">
                       <select
@@ -267,13 +267,58 @@ function AdminPanel() {
                         {eventsList.map((ev) => (
                           <option key={ev.id} value={ev.id}>
                             {formatDateShort(ev.date)} — {ev.tournoi_nom || "Session"}
+                            {ev.type === "finale" ? " 🏆 FINALE" : ""}
                             {ev.lieu_nom ? ` (${ev.lieu_nom})` : ""}
                           </option>
                         ))}
                       </select>
                     </div>
                   </div>
+                  <div className="input-group" style={{ flex: 1 }}>
+                    <label className="input-label">Type</label>
+                    <div className="input-wrapper">
+                      <select
+                        className="admin-session-select"
+                        value={
+                          eventsList.find((x) => String(x.id) === String(selectedEvent))?.type || "normal"
+                        }
+                        disabled={!selectedEvent}
+                        onChange={async (e) => {
+                          const newType = e.target.value;
+                          if (newType === "finale" &&
+                              !confirm("Marquer cette session comme GRANDE FINALE ?\nCela cloturera la saison apres saisie des scores.")) {
+                            return;
+                          }
+                          try {
+                            await evenements.update(selectedEvent, { type: newType });
+                            // refresh
+                            const list = await evenements.recent(10);
+                            setEventsList(list || []);
+                          } catch (err) {
+                            alert("Erreur: " + (err.message || "impossible"));
+                          }
+                        }}
+                        style={{ width: "100%" }}
+                      >
+                        <option value="normal">Normale</option>
+                        <option value="finale">🏆 Grande finale</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
+
+                {selectedEvent && eventsList.find((x) => String(x.id) === String(selectedEvent))?.type === "finale" && (
+                  <div style={{
+                    padding: "0.75rem 1rem",
+                    background: "rgba(255, 193, 7, 0.08)",
+                    border: "1px solid rgba(255, 193, 7, 0.3)",
+                    borderRadius: "0.5rem",
+                    fontSize: "0.875rem",
+                    marginBottom: "1rem",
+                  }}>
+                    🏆 <strong>Grande finale</strong> — la saison sera cloturee automatiquement et une nouvelle saison demarrera des l'enregistrement des scores.
+                  </div>
+                )}
 
                 <div className="admin-session-entries">
                   {sessionResults.map((result, index) => (

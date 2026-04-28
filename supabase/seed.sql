@@ -14,9 +14,8 @@ insert into lieu (nom, adresse) values
   ('Le Comptoir', '12 rue Mercière, Lyon'),
   ('Le Briey',    '5 rue de Briey, Lyon');
 
-insert into tournoi (nom, saison) values
-  ('Championnat 2025-2026', '2025-2026');
+insert into tournoi (nom, annee, numero, date_debut) values
+  ('Saison 2 - 2026', 2026, 2, current_date);
 
-insert into evenement (date, lieu_id, tournoi_id, nom) values
-  (now() + interval '7 days', 1, 1, 'Session ouverture'),
-  (now() - interval '3 days', 2, 1, 'Session test passe');
+-- Pas de session de demo : la 1ere sera creee par l'admin
+-- ou par le cron auto le mercredi.

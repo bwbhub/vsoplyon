@@ -73,5 +73,29 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
     )
     RETURNING id
   `
+
+  // Auto-cloture de la saison si l'evenement est de type 'finale'
+  // (idempotent : ne le fait qu'une fois grace au check date_fin null)
+  const ev = await sql<{ type: string; tournoi_id: number | null }[]>`
+    select type, tournoi_id from evenement where id = ${Number(body.evenement_id)}
+  `
+  if (ev[0]?.type === 'finale' && ev[0].tournoi_id) {
+    const tour = await sql<{ id: number; date_fin: string | null }[]>`
+      select id, date_fin from tournoi where id = ${ev[0].tournoi_id}
+    `
+    if (tour[0] && tour[0].date_fin === null) {
+      const year = new Date().getUTCFullYear()
+      await sql`update tournoi set date_fin = current_date where id = ${tour[0].id}`
+      const last = await sql<{ numero: number | null }[]>`
+        select max(numero) as numero from tournoi where annee = ${year}
+      `
+      const nextNum = (last[0]?.numero ?? 0) + 1
+      await sql`
+        insert into tournoi (nom, annee, numero, date_debut)
+        values (${`Saison ${nextNum} - ${year}`}, ${year}, ${nextNum}, current_date)
+      `
+    }
+  }
+
   return rows[0]
 })
