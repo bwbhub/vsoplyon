@@ -119,6 +119,55 @@
   font-size: 1.875rem;
 }
 
+/* ----- RSVP "Je viens" button ----- */
+.session-result-rsvp {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--surface-container);
+  border: 1px solid rgba(136, 212, 204, 0.18);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  transition: all 200ms;
+}
+
+.session-result-rsvp:hover:not(:disabled) {
+  border-color: var(--primary);
+  background-color: rgba(136, 212, 204, 0.06);
+  transform: translateY(-1px);
+}
+
+.session-result-rsvp:disabled { opacity: 0.6; cursor: wait; }
+
+.session-result-rsvp-active {
+  border-color: rgba(124, 217, 168, 0.4);
+  background: linear-gradient(135deg, rgba(124, 217, 168, 0.08), var(--surface-container));
+}
+
+.session-result-rsvp-text { text-align: right; display: flex; flex-direction: column; }
+
+.session-result-rsvp-label {
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  color: var(--on-surface-variant);
+}
+
+.session-result-rsvp-value {
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1rem;
+}
+
+.session-result-rsvp-active .session-result-rsvp-value { color: #7cd9a8; }
+
+.session-result-rsvp-icon { font-size: 2rem; color: var(--primary); }
+.session-result-rsvp-active .session-result-rsvp-icon { color: #7cd9a8; }
+
 .session-insights {
   display: grid;
   grid-template-columns: 1fr;

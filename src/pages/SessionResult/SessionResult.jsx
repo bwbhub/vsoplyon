@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
-import { evenements, scores } from "../../services/api";
+import { evenements, scores, participations } from "../../services/api";
 import {
   formatDateLong,
   formatPoints,
@@ -21,6 +21,7 @@ function SessionResult() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false);
+  const [rsvp, setRsvp] = useState({ count: 0, mine: false, loading: false });
 
   useEffect(() => {
     let alive = true;
@@ -28,13 +29,15 @@ function SessionResult() {
       setLoading(true);
       setError(null);
       try {
-        const [ev, rows] = await Promise.all([
+        const [ev, rows, part] = await Promise.all([
           evenements.get(id),
           scores.byEvenement(id),
+          participations.byEvenement(id).catch(() => null),
         ]);
         if (!alive) return;
         setEvent(ev);
         setRankings(rows || []);
+        if (part) setRsvp({ count: part.count, mine: part.mine, loading: false });
       } catch (err) {
         if (alive) setError(err.message || "Erreur de chargement");
       } finally {
@@ -45,6 +48,26 @@ function SessionResult() {
       alive = false;
     };
   }, [id]);
+
+  const toggleRsvp = async () => {
+    if (rsvp.loading) return;
+    setRsvp((p) => ({ ...p, loading: true }));
+    try {
+      if (rsvp.mine) {
+        await participations.leave(id);
+        setRsvp((p) => ({ count: Math.max(0, p.count - 1), mine: false, loading: false }));
+      } else {
+        await participations.join(id);
+        setRsvp((p) => ({ count: p.count + 1, mine: true, loading: false }));
+      }
+    } catch {
+      setRsvp((p) => ({ ...p, loading: false }));
+    }
+  };
+
+  const isPast = event ? new Date(event.date).getTime() < Date.now() : false;
+  const isCancelled = event?.annulation === true || event?.annulation === "oui";
+  const hasResults = rankings.length > 0;
 
   const totalPoints = rankings.reduce(
     (sum, r) => sum + (Number(r.score) || 0),
@@ -83,20 +106,57 @@ function SessionResult() {
                   {event.lieu_nom ? ` — ${event.lieu_nom}` : ""}
                 </h1>
               </div>
-              <div className="session-result-status">
-                <div className="session-result-status-text">
-                  <span className="session-result-status-label">Statut</span>
-                  <span className="session-result-status-value">
-                    {event.annulation === "oui" ? "Annulée" : "Validée"}
+              {isCancelled ? (
+                <div className="session-result-status">
+                  <div className="session-result-status-text">
+                    <span className="session-result-status-label">Statut</span>
+                    <span className="session-result-status-value">Annulée</span>
+                  </div>
+                  <span
+                    className="material-symbols-outlined session-result-status-icon"
+                    style={{ fontVariationSettings: '"FILL" 1' }}
+                  >
+                    cancel
                   </span>
                 </div>
-                <span
-                  className="material-symbols-outlined session-result-status-icon"
-                  style={{ fontVariationSettings: '"FILL" 1' }}
+              ) : isPast || hasResults ? (
+                <div className="session-result-status">
+                  <div className="session-result-status-text">
+                    <span className="session-result-status-label">Inscrits</span>
+                    <span className="session-result-status-value">
+                      {rsvp.count} joueur{rsvp.count > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <span
+                    className="material-symbols-outlined session-result-status-icon"
+                    style={{ fontVariationSettings: '"FILL" 1' }}
+                  >
+                    group
+                  </span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={`session-result-rsvp ${rsvp.mine ? "session-result-rsvp-active" : ""}`}
+                  onClick={toggleRsvp}
+                  disabled={rsvp.loading}
                 >
-                  {event.annulation === "oui" ? "cancel" : "verified"}
-                </span>
-              </div>
+                  <div className="session-result-rsvp-text">
+                    <span className="session-result-rsvp-label">
+                      {rsvp.count} inscrit{rsvp.count > 1 ? "s" : ""}
+                    </span>
+                    <span className="session-result-rsvp-value">
+                      {rsvp.mine ? "✓ Tu participes" : "Je viens"}
+                    </span>
+                  </div>
+                  <span
+                    className="material-symbols-outlined session-result-rsvp-icon"
+                    style={{ fontVariationSettings: '"FILL" 1' }}
+                  >
+                    {rsvp.mine ? "check_circle" : "add_circle"}
+                  </span>
+                </button>
+              )}
             </div>
 
             <div className="session-insights">
