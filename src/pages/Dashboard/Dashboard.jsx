@@ -245,7 +245,7 @@ function Dashboard() {
                         className="recent-session-avatar"
                         style={{
                           backgroundColor: winner
-                            ? avatarColor(winner.utilisateurid || winner.id)
+                            ? avatarColor(winner.utilisateur_id || winner.id)
                             : "var(--surface-container)",
                         }}
                       >

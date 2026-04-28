@@ -1,8 +1,9 @@
 /**
  * Client API centralisé.
+ * Backend serverless Node.js sur Vercel (/api/*.ts -> /api/*).
  * L'URL de base est définie par la variable d'environnement VITE_API_URL
- * - en local : http://localhost:8000/api
- * - en prod  : https://vsop-lyon.fr/api
+ *   - dev local  : http://localhost:3000/api  (Vercel CLI : `vercel dev`)
+ *   - prod       : /api  (front + API sur le meme deploiement Vercel)
  */
 
 const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')
@@ -61,7 +62,7 @@ async function request(path, { method = 'GET', body, params } = {}) {
 /* -------- Auth -------- */
 export const auth = {
   async login(login, password) {
-    const data = await request('/auth.php', { method: 'POST', body: { login, password } })
+    const data = await request('/auth', { method: 'POST', body: { login, password } })
     setAuth(data.token, data.user)
     return data
   },
@@ -71,45 +72,45 @@ export const auth = {
 
 /* -------- Users -------- */
 export const users = {
-  list: (search) => request('/users.php', { params: { search } }),
-  get:  (id)     => request('/users.php', { params: { id } }),
-  create: (data) => request('/users.php', { method: 'POST', body: data }),
-  update: (id, data) => request('/users.php', { method: 'PUT', body: data, params: { id } }),
-  remove: (id)   => request('/users.php', { method: 'DELETE', params: { id } }),
+  list: (search) => request('/users', { params: { search } }),
+  get:  (id)     => request('/users', { params: { id } }),
+  create: (data) => request('/users', { method: 'POST', body: data }),
+  update: (id, data) => request('/users', { method: 'PUT', body: data, params: { id } }),
+  remove: (id)   => request('/users', { method: 'DELETE', params: { id } }),
 }
 
 /* -------- Tournois -------- */
 export const tournois = {
-  list: ()   => request('/tournois.php'),
-  get:  (id) => request('/tournois.php', { params: { id } }),
+  list: ()   => request('/tournois'),
+  get:  (id) => request('/tournois', { params: { id } }),
 }
 
 /* -------- Lieux -------- */
 export const lieux = {
-  list: () => request('/lieux.php'),
+  list: () => request('/lieux'),
 }
 
 /* -------- Evenements (sessions) -------- */
 export const evenements = {
-  list: (opts = {}) => request('/evenements.php', { params: opts }),
-  get:  (id)        => request('/evenements.php', { params: { id } }),
-  upcoming: (limit = 1) => request('/evenements.php', { params: { upcoming: 1, limit } }),
-  recent:   (limit = 5) => request('/evenements.php', { params: { recent: 1, limit } }),
-  byTournoi: (tournoi)  => request('/evenements.php', { params: { tournoi } }),
+  list: (opts = {}) => request('/evenements', { params: opts }),
+  get:  (id)        => request('/evenements', { params: { id } }),
+  upcoming: (limit = 1) => request('/evenements', { params: { upcoming: 1, limit } }),
+  recent:   (limit = 5) => request('/evenements', { params: { recent: 1, limit } }),
+  byTournoi: (tournoi)  => request('/evenements', { params: { tournoi } }),
 }
 
 /* -------- Scores -------- */
 export const scores = {
-  byEvenement:   (evenement)   => request('/scores.php', { params: { evenement } }),
-  byUtilisateur: (utilisateur) => request('/scores.php', { params: { utilisateur } }),
-  byTournoi:     (tournoi)     => request('/scores.php', { params: { tournoi } }),
-  create: (data) => request('/scores.php', { method: 'POST', body: data }),
+  byEvenement:   (evenement)   => request('/scores', { params: { evenement } }),
+  byUtilisateur: (utilisateur) => request('/scores', { params: { utilisateur } }),
+  byTournoi:     (tournoi)     => request('/scores', { params: { tournoi } }),
+  create: (data) => request('/scores', { method: 'POST', body: data }),
 }
 
 /* -------- Leaderboard -------- */
 export const leaderboard = {
-  byTournoi: (tournoi, limit = 100) => request('/leaderboard.php', { params: { tournoi, limit } }),
-  allTime:   (limit = 100)          => request('/leaderboard.php', { params: { all: 1, limit } }),
+  byTournoi: (tournoi, limit = 100) => request('/leaderboard', { params: { tournoi, limit } }),
+  allTime:   (limit = 100)          => request('/leaderboard', { params: { all: 1, limit } }),
 }
 
 export default { auth, users, tournois, lieux, evenements, scores, leaderboard }

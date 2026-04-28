@@ -28,15 +28,23 @@ function AdminPanel() {
   const [eventsList, setEventsList] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState("");
   const [sessionResults, setSessionResults] = useState([
-    { utilisateurid: "", score: "", bonus: "" },
-    { utilisateurid: "", score: "", bonus: "" },
-    { utilisateurid: "", score: "", bonus: "" },
+    { utilisateur_id: "", kills: "" },
+    { utilisateur_id: "", kills: "" },
+    { utilisateur_id: "", kills: "" },
   ]);
   const [sessionStatus, setSessionStatus] = useState(null);
 
+  // Règle de points : (N − rang + 1) positions + 1 pt / kill + 5 pts bonus 1er
+  const computePoints = (rankIndex, totalRows, kills) => {
+    const rankPoints = Math.max(0, totalRows - rankIndex);
+    const killPoints = Number(kills) || 0;
+    const bonus = rankIndex === 0 ? 5 : 0;
+    return rankPoints + killPoints + bonus;
+  };
+
   // Redirige si non-admin
   useEffect(() => {
-    if (user && user.admin !== "Oui") {
+    if (user && user.admin !== true) {
       navigate("/dashboard");
     }
   }, [user, navigate]);
@@ -111,31 +119,36 @@ function AdminPanel() {
       return;
     }
     try {
-      const valid = sessionResults.filter(
-        (r) => r.utilisateurid && r.score !== ""
-      );
+      // On ne garde que les lignes avec un joueur sélectionné — dans l'ordre saisi (1er → dernier)
+      const valid = sessionResults.filter((r) => r.utilisateur_id);
       if (valid.length === 0) {
         setSessionStatus({ type: "error", message: "Renseignez au moins un résultat" });
         return;
       }
-      for (let i = 0; i < valid.length; i++) {
+      const total = valid.length;
+      for (let i = 0; i < total; i++) {
         const r = valid[i];
+        const kills = Number(r.kills) || 0;
+        const bonus = i === 0 ? 5 : 0;
+        const rankPoints = total - i; // 1er = N, dernier = 1
+        const points = rankPoints + kills + bonus;
         await scores.create({
-          utilisateurid: Number(r.utilisateurid),
-          evenementid: ev.id,
-          tournoiid: ev.id_tournoi,
-          points: Number(r.score) || 0,
-          bonus: Number(r.bonus) || 0,
-          score: (Number(r.score) || 0) + (Number(r.bonus) || 0),
+          utilisateur_id: Number(r.utilisateur_id),
+          evenement_id: ev.id,
+          tournoi_id: ev.tournoi_id,
+          points,
+          bonus,
+          kills,
+          score: points,
           position_sortie: i + 1,
           repas: "non",
         });
       }
       setSessionStatus({ type: "success", message: "Résultats enregistrés" });
       setSessionResults([
-        { utilisateurid: "", score: "", bonus: "" },
-        { utilisateurid: "", score: "", bonus: "" },
-        { utilisateurid: "", score: "", bonus: "" },
+        { utilisateur_id: "", kills: "" },
+        { utilisateur_id: "", kills: "" },
+        { utilisateur_id: "", kills: "" },
       ]);
     } catch (err) {
       setSessionStatus({ type: "error", message: err.message || "Erreur" });
@@ -275,9 +288,9 @@ function AdminPanel() {
                       <div className="admin-session-player">
                         <select
                           className="admin-session-select"
-                          value={result.utilisateurid}
+                          value={result.utilisateur_id}
                           onChange={(e) =>
-                            updateResultRow(index, { utilisateurid: e.target.value })
+                            updateResultRow(index, { utilisateur_id: e.target.value })
                           }
                         >
                           <option value="">Choisir un joueur…</option>
@@ -291,14 +304,17 @@ function AdminPanel() {
                       <div className="admin-session-points">
                         <input
                           type="number"
-                          placeholder="Points"
+                          min="0"
+                          placeholder="Kills"
                           className="admin-session-input"
-                          value={result.score}
+                          value={result.kills}
                           onChange={(e) =>
-                            updateResultRow(index, { score: e.target.value })
+                            updateResultRow(index, { kills: e.target.value })
                           }
                         />
-                        <span className="admin-session-pts">PTS</span>
+                        <span className="admin-session-pts" title="Points calculés : (N - rang + 1) + kills + 5 bonus 1er">
+                          = {computePoints(index, sessionResults.length, result.kills)} PTS
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -311,7 +327,7 @@ function AdminPanel() {
                     onClick={() =>
                       setSessionResults((r) => [
                         ...r,
-                        { utilisateurid: "", score: "", bonus: "" },
+                        { utilisateur_id: "", kills: "" },
                       ])
                     }
                   >
@@ -391,7 +407,7 @@ function AdminPanel() {
                         </h3>
                         <p className="admin-player-joined">
                           {p.pseudo ? `@${p.pseudo}` : p.mail || "—"}
-                          {p.admin === "Oui" ? " · Admin" : ""}
+                          {p.admin === true ? " · Admin" : ""}
                         </p>
                       </div>
                     </div>

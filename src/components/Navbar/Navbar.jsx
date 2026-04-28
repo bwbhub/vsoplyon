@@ -39,7 +39,7 @@ function Navbar() {
           >
             Sessions
           </Link>
-          {user?.admin === "Oui" && (
+          {user?.admin === true && (
             <Link
               to="/admin"
               className={`navbar-link ${isActive("/admin") ? "active" : ""}`}

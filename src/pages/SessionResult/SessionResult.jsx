@@ -112,7 +112,7 @@ function SessionResult() {
                     <div
                       className="session-insight-avatar"
                       style={{
-                        backgroundColor: avatarColor(mvp.utilisateurid),
+                        backgroundColor: avatarColor(mvp.utilisateur_id),
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -210,7 +210,7 @@ function SessionResult() {
                           <div
                             className="session-ranking-avatar-placeholder"
                             style={{
-                              backgroundColor: avatarColor(player.utilisateurid),
+                              backgroundColor: avatarColor(player.utilisateur_id),
                               color: "var(--on-surface)",
                               display: "flex",
                               alignItems: "center",
