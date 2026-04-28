@@ -113,4 +113,12 @@ export const leaderboard = {
   allTime:   (limit = 100)          => request('/leaderboard', { params: { all: 1, limit } }),
 }
 
-export default { auth, users, tournois, lieux, evenements, scores, leaderboard }
+/* -------- Participations (Je viens) -------- */
+export const participations = {
+  byEvenement: (evenement) => request('/participations', { params: { evenement } }),
+  mine:        ()          => request('/participations', { params: { me: 1 } }),
+  join:        (evenement_id) => request('/participations', { method: 'POST', body: { evenement_id } }),
+  leave:       (evenement)   => request('/participations', { method: 'DELETE', params: { evenement } }),
+}
+
+export default { auth, users, tournois, lieux, evenements, scores, leaderboard, participations }

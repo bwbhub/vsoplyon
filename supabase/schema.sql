@@ -11,7 +11,8 @@
 -- =====================================================================
 
 -- Drop dans le bon ordre (dependances inverses) si on relance le script
-drop view if exists score_tournoi cascade;
+drop view  if exists score_tournoi  cascade;
+drop table if exists participation  cascade;
 drop table if exists score_evenement cascade;
 drop table if exists evenement       cascade;
 drop table if exists tournoi         cascade;
@@ -96,6 +97,20 @@ create table score_evenement (
 create index score_ev_utilisateur_idx on score_evenement (utilisateur_id);
 create index score_ev_evenement_idx   on score_evenement (evenement_id);
 create index score_ev_tournoi_idx     on score_evenement (tournoi_id);
+
+-- ---------------------------------------------------------------------
+-- participation  (RSVP "Je viens" sur un evenement)
+-- ---------------------------------------------------------------------
+create table participation (
+  id              bigserial primary key,
+  utilisateur_id  bigint      not null references utilisateur(id) on delete cascade,
+  evenement_id    bigint      not null references evenement(id)   on delete cascade,
+  created_at      timestamptz not null default now(),
+  unique (utilisateur_id, evenement_id)
+);
+
+create index participation_evenement_idx   on participation (evenement_id);
+create index participation_utilisateur_idx on participation (utilisateur_id);
 
 -- ---------------------------------------------------------------------
 -- score_tournoi  (vue calculee : agregation par tournoi)

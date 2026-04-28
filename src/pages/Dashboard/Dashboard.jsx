@@ -4,7 +4,7 @@ import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import Button from "../../components/Button/Button";
 import { useAuth } from "../../context/AuthContext";
-import { evenements, scores, tournois, leaderboard } from "../../services/api";
+import { evenements, scores, tournois, leaderboard, participations } from "../../services/api";
 import {
   formatDateLong,
   formatDateShort,
@@ -25,6 +25,7 @@ function Dashboard() {
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [myPoints, setMyPoints] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [participation, setParticipation] = useState({ count: 0, mine: false, loading: false });
 
   useEffect(() => {
     let alive = true;
@@ -36,7 +37,16 @@ function Dashboard() {
           tournois.list(),
         ]);
         if (!alive) return;
-        setUpcoming(up?.[0] || null);
+        const nextEv = up?.[0] || null;
+        setUpcoming(nextEv);
+
+        // Participation a la prochaine session
+        if (nextEv) {
+          try {
+            const data = await participations.byEvenement(nextEv.id);
+            if (alive) setParticipation({ count: data.count, mine: data.mine, loading: false });
+          } catch { /* silencieux */ }
+        }
 
         // Pour chaque session recente, recuperer le gagnant (score le plus haut)
         const recentWithWinners = await Promise.all(
@@ -129,11 +139,37 @@ function Dashboard() {
                   </div>
                 )}
               </div>
-              <div className="next-session-actions">
+              <div className="next-session-actions" style={{ display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "flex-end" }}>
                 {upcoming && (
-                  <Button onClick={() => navigate(`/session/${upcoming.id}`)}>
-                    Voir la session
-                  </Button>
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.875rem", opacity: 0.85 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: "1.1rem" }}>group</span>
+                      <span>{participation.count} inscrit{participation.count > 1 ? "s" : ""}</span>
+                    </div>
+                    <Button
+                      variant={participation.mine ? "secondary" : "primary"}
+                      disabled={participation.loading}
+                      onClick={async () => {
+                        setParticipation((p) => ({ ...p, loading: true }));
+                        try {
+                          if (participation.mine) {
+                            await participations.leave(upcoming.id);
+                            setParticipation((p) => ({ count: Math.max(0, p.count - 1), mine: false, loading: false }));
+                          } else {
+                            await participations.join(upcoming.id);
+                            setParticipation((p) => ({ count: p.count + 1, mine: true, loading: false }));
+                          }
+                        } catch {
+                          setParticipation((p) => ({ ...p, loading: false }));
+                        }
+                      }}
+                    >
+                      {participation.mine ? "✓ Inscrit (annuler)" : "Je viens"}
+                    </Button>
+                    <Button variant="tertiary" onClick={() => navigate(`/session/${upcoming.id}`)}>
+                      Voir la session
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
