@@ -22,6 +22,9 @@ function SessionResult() {
   const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const [rsvp, setRsvp] = useState({ count: 0, mine: false, loading: false });
+  const [rsvpParticipants, setRsvpParticipants] = useState([]);
+  const [rsvpListOpen, setRsvpListOpen] = useState(false);
+  const [rsvpListHovered, setRsvpListHovered] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -37,7 +40,10 @@ function SessionResult() {
         if (!alive) return;
         setEvent(ev);
         setRankings(rows || []);
-        if (part) setRsvp({ count: part.count, mine: part.mine, loading: false });
+        if (part) {
+          setRsvp({ count: part.count, mine: part.mine, loading: false });
+          setRsvpParticipants(part.participants || []);
+        }
       } catch (err) {
         if (alive) setError(err.message || "Erreur de chargement");
       } finally {
@@ -68,6 +74,8 @@ function SessionResult() {
   const isPast = event ? new Date(event.date).getTime() < Date.now() : false;
   const isCancelled = event?.annulation === true || event?.annulation === "oui";
   const hasResults = rankings.length > 0;
+
+  const rsvpListVisible = rsvpListOpen || rsvpListHovered;
 
   const totalPoints = rankings.reduce(
     (sum, r) => sum + (Number(r.score) || 0),
@@ -212,6 +220,78 @@ function SessionResult() {
                     groups
                   </span>
                 </div>
+
+                <div
+                  className="rsvp-tile-wrapper"
+                  onMouseEnter={() => setRsvpListHovered(true)}
+                  onMouseLeave={() => setRsvpListHovered(false)}
+                >
+                  <button
+                    type="button"
+                    className="session-insight-card session-insight-card-interactive"
+                    onClick={() => setRsvpListOpen((v) => !v)}
+                  >
+                    <div>
+                      <span className="session-insight-card-label">
+                        Joueurs inscrits
+                      </span>
+                      <div className="session-insight-card-value">
+                        {rsvp.count}
+                      </div>
+                    </div>
+                    <span
+                      className="material-symbols-outlined session-insight-card-icon"
+                      style={{ fontVariationSettings: '"FILL" 1' }}
+                    >
+                      how_to_reg
+                    </span>
+                  </button>
+
+                  {rsvpListVisible && (
+                    <div
+                      className="rsvp-participants-popup"
+                      onMouseEnter={() => setRsvpListHovered(true)}
+                      onMouseLeave={() => setRsvpListHovered(false)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rsvp-participants-header">
+                        <span className="rsvp-participants-title">
+                          Inscrits ({rsvp.count})
+                        </span>
+                        <button
+                          type="button"
+                          className="rsvp-participants-close"
+                          onClick={() => { setRsvpListOpen(false); setRsvpListHovered(false); }}
+                        >
+                          <span className="material-symbols-outlined">close</span>
+                        </button>
+                      </div>
+                      <div className="rsvp-participants-list">
+                        {rsvpParticipants.length === 0 ? (
+                          <p className="rsvp-participants-empty">Aucun joueur inscrit</p>
+                        ) : (
+                          rsvpParticipants.map((p) => (
+                            <div key={p.id} className="rsvp-participants-row">
+                              <div
+                                className="rsvp-participants-avatar"
+                                style={{ backgroundColor: avatarColor(p.id) }}
+                              >
+                                {initialsOf(p)}
+                              </div>
+                              <div>
+                                <span className="rsvp-participants-name">{fullName(p)}</span>
+                                {p.pseudo && (
+                                  <span className="rsvp-participants-pseudo">{p.pseudo}</span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="session-insight-card">
                   <div>
                     <span className="session-insight-card-label">
@@ -320,6 +400,13 @@ function SessionResult() {
           </>
         )}
       </main>
+
+      {rsvpListOpen && (
+        <div
+          className="rsvp-participants-backdrop"
+          onClick={() => setRsvpListOpen(false)}
+        />
+      )}
 
       <BottomNav />
     </div>

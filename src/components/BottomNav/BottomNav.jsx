@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import './BottomNav.css'
 
 function BottomNav() {
   const location = useLocation()
+  const { user } = useAuth()
 
   const isActive = (path) => location.pathname === path
 
@@ -35,6 +37,17 @@ function BottomNav() {
         </span>
         <span className="bottom-nav-label">Sessions</span>
       </Link>
+      {user?.admin === true && (
+        <Link
+          to="/admin"
+          className={`bottom-nav-item ${isActive('/admin') ? 'active' : ''}`}
+        >
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive('/admin') ? '"FILL" 1' : '"FILL" 0' }}>
+            admin_panel_settings
+          </span>
+          <span className="bottom-nav-label">Admin</span>
+        </Link>
+      )}
     </nav>
   )
 }

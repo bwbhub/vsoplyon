@@ -545,3 +545,146 @@
 .session-rankings-show-more:hover {
   color: var(--primary);
 }
+
+/* ---- Joueurs inscrits tile ---- */
+.rsvp-tile-wrapper {
+  position: relative;
+}
+
+button.session-insight-card.session-insight-card-interactive {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 200ms, transform 200ms;
+}
+
+button.session-insight-card.session-insight-card-interactive:hover {
+  border-color: rgba(136, 212, 204, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ---- Participants popup ---- */
+.rsvp-participants-popup {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 100%;
+  min-width: 220px;
+  max-height: 280px;
+  overflow-y: auto;
+  background-color: var(--surface-container-highest);
+  border: 1px solid rgba(136, 212, 204, 0.2);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+}
+
+@media (max-width: 767px) {
+  .rsvp-participants-popup {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 5.5rem;
+    top: auto;
+    width: auto;
+    max-height: 55vh;
+    border-radius: 1rem;
+  }
+}
+
+.rsvp-participants-backdrop {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .rsvp-participants-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 199;
+  }
+}
+
+.rsvp-participants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rsvp-participants-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--on-surface-variant);
+}
+
+.rsvp-participants-close {
+  color: var(--on-surface-variant);
+  line-height: 0;
+  transition: color 200ms;
+}
+
+.rsvp-participants-close:hover {
+  color: var(--on-surface);
+}
+
+.rsvp-participants-close .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.rsvp-participants-list {
+  padding: 0.375rem 0;
+}
+
+.rsvp-participants-empty {
+  padding: 0.875rem 1.25rem;
+  font-size: 0.85rem;
+  color: var(--on-surface-variant);
+}
+
+.rsvp-participants-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  transition: background-color 150ms;
+}
+
+.rsvp-participants-row:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.rsvp-participants-avatar {
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.65rem;
+  color: rgba(0, 0, 0, 0.65);
+  flex-shrink: 0;
+}
+
+.rsvp-participants-name {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--on-surface);
+}
+
+.rsvp-participants-pseudo {
+  display: block;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--on-surface-variant);
+}
