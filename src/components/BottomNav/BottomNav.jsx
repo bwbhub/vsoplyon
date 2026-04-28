@@ -27,13 +27,13 @@ function BottomNav() {
         <span className="bottom-nav-label">Classement</span>
       </Link>
       <Link
-        to="/session/1"
+        to="/sessions"
         className={`bottom-nav-item ${location.pathname.startsWith('/session') ? 'active' : ''}`}
       >
         <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname.startsWith('/session') ? '"FILL" 1' : '"FILL" 0' }}>
-          groups
+          event
         </span>
-        <span className="bottom-nav-label">Joueurs</span>
+        <span className="bottom-nav-label">Sessions</span>
       </Link>
     </nav>
   )

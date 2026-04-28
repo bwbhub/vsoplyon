@@ -34,7 +34,7 @@ function Navbar() {
             Classement
           </Link>
           <Link
-            to="/session/1"
+            to="/sessions"
             className={`navbar-link ${location.pathname.startsWith("/session") ? "active" : ""}`}
           >
             Sessions

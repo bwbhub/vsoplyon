@@ -6,6 +6,7 @@ import SessionResult from './pages/SessionResult/SessionResult'
 import Leaderboard from './pages/Leaderboard/Leaderboard'
 import AdminPanel from './pages/AdminPanel/AdminPanel'
 import Profile from './pages/Profile/Profile'
+import Sessions from './pages/Sessions/Sessions'
 
 function App() {
   return (
@@ -42,6 +43,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sessions"
+            element={
+              <ProtectedRoute>
+                <Sessions />
               </ProtectedRoute>
             }
           />

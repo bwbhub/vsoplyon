@@ -61,7 +61,7 @@ function AdminPanel() {
 
   useEffect(() => {
     refreshPlayers();
-    evenements.recent(10).then(setEventsList).catch(() => setEventsList([]));
+    evenements.list({ limit: 30 }).then(setEventsList).catch(() => setEventsList([]));
   }, []);
 
   const filteredPlayers = useMemo(() => {
@@ -292,7 +292,7 @@ function AdminPanel() {
                           try {
                             await evenements.update(selectedEvent, { type: newType });
                             // refresh
-                            const list = await evenements.recent(10);
+                            const list = await evenements.list({ limit: 30 });
                             setEventsList(list || []);
                           } catch (err) {
                             alert("Erreur: " + (err.message || "impossible"));
