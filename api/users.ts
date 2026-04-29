@@ -40,7 +40,10 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
       if (!body.nom || !body.prenom || !body.mail) {
         throw new ApiError(422, 'Missing nom, prenom or mail')
       }
-      const passwordHash = body.password ? hashPassword(String(body.password)) : ''
+      // Pas de flow de confirmation par mail : on attribue automatiquement
+      // le mot de passe "poker" si aucun n'est fourni. (App interne, pas de
+      // secret a proteger - les membres pourront le changer s'ils le souhaitent.)
+      const passwordHash = hashPassword(String(body.password || 'poker'))
       const admin = body.admin === true || body.admin === 'Oui' || body.admin === 'true'
 
       const rows = await sql`

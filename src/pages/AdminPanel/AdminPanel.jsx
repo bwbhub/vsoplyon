@@ -82,7 +82,7 @@ function AdminPanel() {
     }
     try {
       await usersApi.create(newPlayer);
-      setCreateStatus({ type: "success", message: "Membre ajouté" });
+      setCreateStatus({ type: "success", message: "Membre ajouté — mot de passe par défaut : « poker »" });
       setNewPlayer({ nom: "", prenom: "", mail: "", pseudo: "" });
       refreshPlayers();
     } catch (err) {
