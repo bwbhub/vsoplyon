@@ -68,10 +68,15 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
   const bonus = Number(body.bonus ?? 0) | 0
   const kills = Number(body.kills ?? 0) | 0
   const score = body.score !== undefined ? Number(body.score) | 0 : points + bonus
+  const carre = Number(body.carre ?? 0) | 0
+  const royal_flush = Number(body.royal_flush ?? 0) | 0
+  const flush = Number(body.flush ?? 0) | 0
+  const bounty = body.bounty === true || body.bounty === 'true'
 
   const rows = await sql`
     INSERT INTO score_evenement
-      (utilisateur_id, evenement_id, tournoi_id, points, bonus, kills, position_sortie, score, repas)
+      (utilisateur_id, evenement_id, tournoi_id, points, bonus, kills, position_sortie, score, repas,
+       carre, royal_flush, flush, bounty)
     VALUES (
       ${Number(body.utilisateur_id)},
       ${Number(body.evenement_id)},
@@ -81,7 +86,11 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
       ${kills},
       ${body.position_sortie ? Number(body.position_sortie) : null},
       ${score},
-      ${body.repas === true || body.repas === 'oui'}
+      ${body.repas === true || body.repas === 'oui'},
+      ${carre},
+      ${royal_flush},
+      ${flush},
+      ${bounty}
     )
     RETURNING id
   `

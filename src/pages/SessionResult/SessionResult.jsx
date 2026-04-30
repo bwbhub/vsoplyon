@@ -154,6 +154,11 @@ function SessionResult() {
     0
   );
   const mvp = rankings[0];
+  // Totaux des mains remarquables (sans indiquer qui a eu quoi)
+  const totalCarres = rankings.reduce((s, r) => s + (Number(r.carre) || 0), 0);
+  const totalRoyalFlush = rankings.reduce((s, r) => s + (Number(r.royal_flush) || 0), 0);
+  const totalFlush = rankings.reduce((s, r) => s + (Number(r.flush) || 0), 0);
+  const bountyHunter = rankings.find((r) => r.bounty === true);
   const INITIAL_VISIBLE = 5;
   const visible = showAll ? rankings : rankings.slice(0, INITIAL_VISIBLE);
 
@@ -515,6 +520,79 @@ function SessionResult() {
                     database
                   </span>
                 </div>
+
+                {/* Mains remarquables — totaux sans nominer les joueurs */}
+                {hasResults && (
+                  <div className="session-insight-card session-insight-hands">
+                    <div>
+                      <span className="session-insight-card-label">
+                        Mains remarquables
+                      </span>
+                      <div className="session-hands-totals">
+                        <span className="session-hands-item" title="Carrés">
+                          <span className="session-hands-tag">C</span>
+                          {totalCarres}
+                        </span>
+                        <span className="session-hands-item" title="Royal flush">
+                          <span className="session-hands-tag">RF</span>
+                          {totalRoyalFlush}
+                        </span>
+                        <span className="session-hands-item" title="Flush">
+                          <span className="session-hands-tag">F</span>
+                          {totalFlush}
+                        </span>
+                      </div>
+                    </div>
+                    <span
+                      className="material-symbols-outlined session-insight-card-icon"
+                      style={{ fontVariationSettings: '"FILL" 1' }}
+                    >
+                      playing_cards
+                    </span>
+                  </div>
+                )}
+
+                {/* Bounty Hunter de la session */}
+                {bountyHunter && (
+                  <div
+                    className="session-insight-card session-insight-bounty"
+                    onClick={() => navigate(`/profile/${bountyHunter.utilisateur_id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div>
+                      <span className="session-insight-card-label">
+                        Bounty hunter
+                      </span>
+                      <div className="session-insight-bounty-player">
+                        <div
+                          className="session-insight-avatar"
+                          style={{
+                            backgroundColor: avatarColor(bountyHunter.utilisateur_id),
+                            width: "2.25rem",
+                            height: "2.25rem",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          {initialsOf(bountyHunter)}
+                        </div>
+                        <div className="session-insight-bounty-info">
+                          <span className="session-insight-bounty-name">
+                            {fullName(bountyHunter)}
+                          </span>
+                          <span className="session-insight-bounty-kills">
+                            {bountyHunter.kills} kill{bountyHunter.kills > 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <span
+                      className="material-symbols-outlined session-insight-card-icon"
+                      style={{ fontVariationSettings: '"FILL" 1', color: "#ffc845" }}
+                    >
+                      military_tech
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

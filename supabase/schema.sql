@@ -95,6 +95,13 @@ create table score_evenement (
   position_sortie integer,
   score           integer     not null default 0,
   repas           boolean     not null default false,
+  -- Mains remarquables saisies par l'admin :
+  carre           integer     not null default 0,   -- nb de carres realises
+  royal_flush     integer     not null default 0,   -- nb de royal flush
+  flush           integer     not null default 0,   -- nb de flush
+  -- Bounty hunter : attribue automatiquement au joueur avec le plus de kills
+  -- de la session (un seul "true" par evenement).
+  bounty          boolean     not null default false,
   created_at      timestamptz not null default now(),
   unique (utilisateur_id, evenement_id)
 );

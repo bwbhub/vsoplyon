@@ -39,6 +39,8 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
   // Etat du classement : ranking[i] = utilisateur_id (ou null) ; killsByUser = { [uid]: nb }
   const [ranking, setRanking] = useState([]);
   const [killsByUser, setKillsByUser] = useState({});
+  // Mains remarquables par joueur : { [uid]: { carre, royal_flush, flush } }
+  const [handsByUser, setHandsByUser] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -70,6 +72,13 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
           setRanking(sorted.map((s) => s.utilisateur_id));
           setKillsByUser(
             Object.fromEntries(sorted.map((s) => [s.utilisateur_id, s.kills || 0]))
+          );
+          setHandsByUser(
+            Object.fromEntries(sorted.map((s) => [s.utilisateur_id, {
+              carre: s.carre || 0,
+              royal_flush: s.royal_flush || 0,
+              flush: s.flush || 0,
+            }]))
           );
           setStep("ranking");
         } else {
@@ -170,7 +179,28 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
     setKillsByUser((k) => ({ ...k, [uid]: Number(val) || 0 }));
   };
 
+  const setHand = (uid, field, val) => {
+    setHandsByUser((h) => ({
+      ...h,
+      [uid]: { ...(h[uid] || { carre: 0, royal_flush: 0, flush: 0 }), [field]: Number(val) || 0 },
+    }));
+  };
+
   const allFilled = ranking.length > 0 && ranking.every((x) => x !== null);
+
+  // Le bounty va au joueur avec le plus de kills. En cas d'egalite, au mieux
+  // classe (= plus bas position_sortie = plus haut dans ranking[]).
+  const bountyWinnerId = useMemo(() => {
+    if (!allFilled) return null;
+    let best = null;
+    let bestKills = 0;
+    for (let i = 0; i < ranking.length; i++) {
+      const uid = ranking[i];
+      const k = killsByUser[uid] || 0;
+      if (k > bestKills) { best = uid; bestKills = k; }
+    }
+    return bestKills > 0 ? best : null;
+  }, [ranking, killsByUser, allFilled]);
 
   const computePoints = (rankIndex, total, kills) => {
     const rankPoints = total - rankIndex;
@@ -194,6 +224,7 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
       for (let i = 0; i < total; i++) {
         const uid = ranking[i];
         const kills = killsByUser[uid] || 0;
+        const hands = handsByUser[uid] || { carre: 0, royal_flush: 0, flush: 0 };
         const bonus = i === 0 ? 5 : 0;
         const rankPoints = total - i;
         const points = rankPoints + kills + bonus;
@@ -207,6 +238,10 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
           score: points,
           position_sortie: i + 1,
           repas: "non",
+          carre: hands.carre,
+          royal_flush: hands.royal_flush,
+          flush: hands.flush,
+          bounty: uid === bountyWinnerId,
         });
       }
       onSaved?.();
@@ -431,10 +466,13 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
                   </select>
                 )}
 
-                {/* Kills + points calcules */}
+                {/* Kills + mains remarquables + points calcules */}
                 {uid != null && (
                   <div className="score-entry-slot-meta">
-                    <label className="score-entry-slot-kills">
+                    <label
+                      className="score-entry-chip score-entry-chip-kills"
+                      title="Kills"
+                    >
                       <span className="material-symbols-outlined">local_fire_department</span>
                       <input
                         type="number"
@@ -443,9 +481,43 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
                         onChange={(e) => setKills(uid, e.target.value)}
                       />
                     </label>
-                    <span className="score-entry-slot-points">
-                      {points} PTS
-                    </span>
+                    <label className="score-entry-chip score-entry-chip-hand" title="Carré">
+                      <span className="score-entry-chip-tag">C</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={handsByUser[uid]?.carre ?? 0}
+                        onChange={(e) => setHand(uid, "carre", e.target.value)}
+                      />
+                    </label>
+                    <label className="score-entry-chip score-entry-chip-hand" title="Royal flush">
+                      <span className="score-entry-chip-tag">RF</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={handsByUser[uid]?.royal_flush ?? 0}
+                        onChange={(e) => setHand(uid, "royal_flush", e.target.value)}
+                      />
+                    </label>
+                    <label className="score-entry-chip score-entry-chip-hand" title="Flush">
+                      <span className="score-entry-chip-tag">F</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={handsByUser[uid]?.flush ?? 0}
+                        onChange={(e) => setHand(uid, "flush", e.target.value)}
+                      />
+                    </label>
+                    {uid === bountyWinnerId && (
+                      <span
+                        className="score-entry-chip score-entry-chip-bounty"
+                        title="Bounty hunter (plus de kills)"
+                      >
+                        <span className="material-symbols-outlined">military_tech</span>
+                        Bounty
+                      </span>
+                    )}
+                    <span className="score-entry-slot-points">{points} PTS</span>
                   </div>
                 )}
               </div>

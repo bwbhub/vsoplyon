@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { useAuth } from "../../context/AuthContext";
-import { stats, scores, users as usersApi } from "../../services/api";
+import { stats, scores, users as usersApi, tournois } from "../../services/api";
 import { formatDateShort, avatarColor, initials as initialsOf } from "../../utils/format";
 import "./Profile.css";
 
@@ -35,27 +35,40 @@ function Profile() {
   const [stat, setStat] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [seasons, setSeasons] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(""); // "" = all-time
 
+  // Chargement initial (user, historique, liste des saisons)
   useEffect(() => {
     let alive = true;
     setLoading(true);
     (async () => {
       try {
-        const [u, s, h] = await Promise.all([
+        const [u, h, ts] = await Promise.all([
           isMe ? Promise.resolve(me) : usersApi.get(targetId),
-          stats.byUser(targetId || "me"),
           scores.byUtilisateur(targetId),
+          tournois.list().catch(() => []),
         ]);
         if (!alive) return;
         setProfileUser(u);
-        setStat(s);
         setHistory(h || []);
+        setSeasons(ts || []);
       } finally {
         if (alive) setLoading(false);
       }
     })();
     return () => { alive = false; };
   }, [targetId, isMe, me]);
+
+  // Stats : rechargees quand on change de saison
+  useEffect(() => {
+    let alive = true;
+    stats
+      .byUser(targetId || "me", selectedSeason || null)
+      .then((s) => { if (alive) setStat(s); })
+      .catch(() => { if (alive) setStat(null); });
+    return () => { alive = false; };
+  }, [targetId, selectedSeason]);
 
   const user = profileUser || me;
 
@@ -80,6 +93,22 @@ function Profile() {
             )}
           </div>
         </header>
+
+        {/* Selecteur de periode : All time + chaque saison */}
+        <div className="profile-season-selector">
+          <span className="material-symbols-outlined">filter_alt</span>
+          <select
+            value={selectedSeason}
+            onChange={(e) => setSelectedSeason(e.target.value)}
+          >
+            <option value="">Toutes saisons (all-time)</option>
+            {seasons.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.nom}{s.date_fin ? " (terminée)" : " (en cours)"}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <section className="profile-stats-grid">
           <StatCard
@@ -118,7 +147,63 @@ function Profile() {
             value={loading ? "—" : (stat?.meilleure_position ? `#${stat.meilleure_position}` : "—")}
             accent="tertiary"
           />
+          <StatCard
+            icon="grid_view"
+            label="Carrés"
+            value={loading ? "—" : (stat?.total_carres ?? 0)}
+            accent="primary"
+          />
+          <StatCard
+            icon="auto_awesome"
+            label="Royal flush"
+            value={loading ? "—" : (stat?.total_royal_flush ?? 0)}
+            accent="warning"
+          />
+          <StatCard
+            icon="style"
+            label="Flush"
+            value={loading ? "—" : (stat?.total_flush ?? 0)}
+            accent="tertiary"
+          />
+          <StatCard
+            icon="military_tech"
+            label="Bounty hunter"
+            value={loading ? "—" : (stat?.total_bounty ?? 0)}
+            accent="success"
+          />
         </section>
+
+        {/* Hauts faits : premieres mains de chaque saison */}
+        {Array.isArray(stat?.achievements) && stat.achievements.length > 0 && (
+          <section className="profile-section">
+            <header className="profile-section-header">
+              <p className="profile-section-label">Hauts faits</p>
+              <h2 className="profile-section-title">Premières mains de saison</h2>
+            </header>
+            <div className="profile-achievements">
+              {stat.achievements.map((a) => {
+                const meta = {
+                  carre:        { icon: "grid_view",    label: "Premier carré",              accent: "primary" },
+                  royal_flush:  { icon: "auto_awesome", label: "Première quinte flush royale", accent: "warning" },
+                  flush:        { icon: "style",        label: "Première couleur",           accent: "tertiary" },
+                }[a.hand] || { icon: "military_tech", label: a.hand, accent: "primary" };
+                return (
+                  <div key={`${a.hand}-${a.tournoi_id}`} className={`profile-achievement profile-achievement-${meta.accent}`}>
+                    <div className={`profile-achievement-icon profile-stat-icon-${meta.accent}`}>
+                      <span className="material-symbols-outlined" style={{ fontVariationSettings: '"FILL" 1' }}>{meta.icon}</span>
+                    </div>
+                    <div className="profile-achievement-content">
+                      <span className="profile-achievement-label">{meta.label}</span>
+                      <span className="profile-achievement-meta">
+                        {a.tournoi_nom} · {formatDateShort(a.date)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section className="profile-section">
           <header className="profile-section-header">

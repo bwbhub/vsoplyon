@@ -3,6 +3,29 @@
   padding-bottom: 6rem;
 }
 
+.profile-season-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.65rem;
+  color: var(--on-surface-variant);
+}
+.profile-season-selector select {
+  background: transparent;
+  border: none;
+  color: var(--on-surface);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+.profile-season-selector .material-symbols-outlined { font-size: 1.1rem; }
+
 @media (min-width: 768px) {
   .profile-page { padding-bottom: 0; }
 }
@@ -76,8 +99,9 @@
   background-color: var(--surface-container);
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 1rem;
-  padding: 1.25rem;
+  padding: 0.85rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 1rem;
   overflow: hidden;
@@ -87,6 +111,13 @@
 .profile-stat-card:hover {
   transform: translateY(-2px);
   border-color: rgba(136, 212, 204, 0.18);
+}
+
+@media (min-width: 768px) {
+  .profile-stat-card {
+    padding: 1.25rem;
+    flex-direction: row;
+  }
 }
 
 .profile-stat-icon {
@@ -118,6 +149,85 @@
 
 .profile-stat-label {
   font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---------- Hauts faits ---------- */
+.profile-achievements {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .profile-achievements { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 960px) {
+  .profile-achievements { grid-template-columns: repeat(3, 1fr); }
+}
+
+.profile-achievement {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  transition: transform 200ms, border-color 200ms, background 200ms;
+}
+
+.profile-achievement::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, var(--glow, rgba(136,212,204,0.14)), transparent 60%);
+  pointer-events: none;
+}
+
+.profile-achievement:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.profile-achievement-primary  { --glow: rgba(136, 212, 204, 0.18); }
+.profile-achievement-warning  { --glow: rgba(255, 178,  91, 0.22); }
+.profile-achievement-tertiary { --glow: rgba(208, 188, 255, 0.20); }
+.profile-achievement-success  { --glow: rgba(124, 217, 168, 0.18); }
+
+.profile-achievement-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.profile-achievement-icon .material-symbols-outlined { font-size: 1.4rem; }
+
+.profile-achievement-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  z-index: 1;
+  min-width: 0;
+}
+
+.profile-achievement-label {
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--on-surface);
+}
+
+.profile-achievement-meta {
+  font-size: 0.78rem;
   color: var(--on-surface-variant);
   text-transform: uppercase;
   letter-spacing: 0.05em;

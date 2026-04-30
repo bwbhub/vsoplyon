@@ -256,8 +256,8 @@
 }
 
 .score-entry-slot {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.85rem;
@@ -266,6 +266,10 @@
   border-radius: 0.65rem;
   min-height: 3.5rem;
 }
+.score-entry-slot .score-entry-slot-rank { flex-shrink: 0; }
+.score-entry-slot .score-entry-slot-player,
+.score-entry-slot .score-entry-slot-select { flex: 1 1 180px; min-width: 0; }
+.score-entry-slot .score-entry-slot-meta { flex: 1 1 auto; }
 
 .score-entry-slot-filled {
   border-color: rgba(136, 212, 204, 0.18);
@@ -345,22 +349,24 @@
 .score-entry-slot-meta {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.score-entry-slot-kills {
+/* Chip generique pour kills / mains remarquables */
+.score-entry-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  background: rgba(255, 178, 91, 0.08);
-  color: #ffb25b;
+  gap: 0.25rem;
   padding: 0.3rem 0.5rem;
   border-radius: 0.4rem;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
-.score-entry-slot-kills .material-symbols-outlined { font-size: 1rem; }
-.score-entry-slot-kills input {
-  width: 2.5rem;
+
+.score-entry-chip input {
+  width: 2rem;
   background: transparent;
   border: none;
   color: inherit;
@@ -369,13 +375,42 @@
   font-size: 0.9rem;
   text-align: center;
   outline: none;
+  appearance: textfield;
   -moz-appearance: textfield;
 }
-.score-entry-slot-kills input::-webkit-outer-spin-button,
-.score-entry-slot-kills input::-webkit-inner-spin-button {
+.score-entry-chip input::-webkit-outer-spin-button,
+.score-entry-chip input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.score-entry-chip-kills {
+  background: rgba(255, 178, 91, 0.08);
+  color: #ffb25b;
+}
+.score-entry-chip-kills .material-symbols-outlined { font-size: 1rem; }
+
+.score-entry-chip-hand {
+  background: rgba(136, 212, 204, 0.08);
+  color: var(--primary);
+}
+
+.score-entry-chip-tag {
+  font-family: "Manrope", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0 0.1rem;
+  opacity: 0.85;
+}
+
+.score-entry-chip-bounty {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.25));
+  color: #ffc845;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid rgba(255, 193, 7, 0.4);
+}
+.score-entry-chip-bounty .material-symbols-outlined { font-size: 1rem; }
 
 .score-entry-slot-points {
   background: rgba(136, 212, 204, 0.12);

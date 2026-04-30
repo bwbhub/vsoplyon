@@ -256,6 +256,78 @@
   gap: 0.75rem;
 }
 
+/* ----- Mains remarquables (totaux session) ----- */
+.session-hands-totals {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.session-hands-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  background: rgba(136, 212, 204, 0.08);
+  color: var(--primary);
+  border-radius: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.session-hands-tag {
+  font-family: "Manrope", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.session-insight-hands .session-insight-card-icon { color: var(--primary); }
+
+/* ----- Bounty hunter card ----- */
+.session-insight-bounty {
+  border: 1px solid rgba(255, 193, 7, 0.28) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.08),
+    var(--surface-container)
+  ) !important;
+  transition: transform 150ms, border-color 150ms;
+}
+.session-insight-bounty:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 193, 7, 0.5) !important;
+}
+
+.session-insight-bounty-player {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.session-insight-bounty-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.session-insight-bounty-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-insight-bounty-kills {
+  font-size: 0.75rem;
+  color: #ffc845;
+  font-weight: 600;
+}
+
 /* ----- RSVP "Je viens" button ----- */
 .session-result-rsvp {
   display: flex;

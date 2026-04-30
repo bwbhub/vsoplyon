@@ -123,7 +123,9 @@ export const leaderboard = {
 
 /* -------- Stats joueur (kills, tables finales, etc.) -------- */
 export const stats = {
-  byUser: (utilisateur = 'me') => request('/stats', { params: { utilisateur } }),
+  // tournoi=null/undefined => all-time ; tournoi=<id> => limite a cette saison
+  byUser: (utilisateur = 'me', tournoi = null) =>
+    request('/stats', { params: tournoi ? { utilisateur, tournoi } : { utilisateur } }),
 }
 
 /* -------- Participations (Je viens) -------- */
