@@ -214,6 +214,7 @@
 .profile-achievement-content {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.15rem;
   z-index: 1;
   min-width: 0;
