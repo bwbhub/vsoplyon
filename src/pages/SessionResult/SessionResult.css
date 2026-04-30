@@ -652,13 +652,56 @@ button.session-insight-card.session-insight-card-interactive:hover {
 .rsvp-participants-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1.25rem;
+  gap: 0.5rem;
+  padding: 0 0.5rem 0 0;
   transition: background-color 150ms;
 }
 
 .rsvp-participants-row:hover {
   background-color: rgba(255, 255, 255, 0.04);
+}
+
+.rsvp-participants-link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rsvp-participants-link:hover .rsvp-participants-name {
+  color: var(--primary);
+}
+
+.rsvp-participants-remove {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: all 150ms;
+  flex-shrink: 0;
+}
+
+.rsvp-participants-remove:hover {
+  background: rgba(255, 100, 100, 0.12);
+  border-color: rgba(255, 100, 100, 0.4);
+  color: #ff8888;
+}
+
+.rsvp-participants-remove .material-symbols-outlined {
+  font-size: 1.05rem;
 }
 
 .rsvp-participants-avatar {

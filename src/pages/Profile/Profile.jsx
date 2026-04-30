@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { useAuth } from "../../context/AuthContext";
-import { stats, scores } from "../../services/api";
+import { stats, scores, users as usersApi } from "../../services/api";
 import { formatDateShort, avatarColor, initials as initialsOf } from "../../utils/format";
 import "./Profile.css";
 
@@ -24,20 +25,29 @@ function StatCard({ icon, label, value, accent }) {
 }
 
 function Profile() {
-  const { user, logout } = useAuth();
+  const { user: me, logout } = useAuth();
+  const params = useParams();
+  // /profile = mon profil ; /profile/:id = profil public d'un autre joueur
+  const targetId = params.id ? Number(params.id) : me?.id;
+  const isMe = !params.id || Number(params.id) === Number(me?.id);
+
+  const [profileUser, setProfileUser] = useState(isMe ? me : null);
   const [stat, setStat] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
+    setLoading(true);
     (async () => {
       try {
-        const [s, h] = await Promise.all([
-          stats.byUser("me"),
-          scores.byUtilisateur(user?.id),
+        const [u, s, h] = await Promise.all([
+          isMe ? Promise.resolve(me) : usersApi.get(targetId),
+          stats.byUser(targetId || "me"),
+          scores.byUtilisateur(targetId),
         ]);
         if (!alive) return;
+        setProfileUser(u);
         setStat(s);
         setHistory(h || []);
       } finally {
@@ -45,7 +55,9 @@ function Profile() {
       }
     })();
     return () => { alive = false; };
-  }, [user?.id]);
+  }, [targetId, isMe, me]);
+
+  const user = profileUser || me;
 
   return (
     <div className="profile-page">
@@ -59,7 +71,7 @@ function Profile() {
             {initialsOf(user)}
           </div>
           <div className="profile-identity">
-            <p className="profile-label">Profil</p>
+            <p className="profile-label">{isMe ? "Mon profil" : "Profil"}</p>
             <h1 className="profile-title">
               {[user?.prenom, user?.nom].filter(Boolean).join(" ") || user?.pseudo}
             </h1>
@@ -140,12 +152,14 @@ function Profile() {
           </div>
         </section>
 
-        <section className="profile-actions">
-          <button className="profile-logout-btn" onClick={logout}>
-            <span className="material-symbols-outlined">logout</span>
-            Se déconnecter
-          </button>
-        </section>
+        {isMe && (
+          <section className="profile-actions">
+            <button className="profile-logout-btn" onClick={logout}>
+              <span className="material-symbols-outlined">logout</span>
+              Se déconnecter
+            </button>
+          </section>
+        )}
       </main>
       <BottomNav />
     </div>

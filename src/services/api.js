@@ -130,6 +130,8 @@ export const participations = {
   mine:        ()          => request('/participations', { params: { me: 1 } }),
   join:        (evenement_id) => request('/participations', { method: 'POST', body: { evenement_id } }),
   leave:       (evenement)   => request('/participations', { method: 'DELETE', params: { evenement } }),
+  // admin : retirer l'inscription d'un autre joueur
+  remove:      (evenement, utilisateur) => request('/participations', { method: 'DELETE', params: { evenement, utilisateur } }),
 }
 
 export default { auth, users, tournois, lieux, evenements, scores, leaderboard, stats, participations }

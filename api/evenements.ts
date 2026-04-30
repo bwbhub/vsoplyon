@@ -105,7 +105,13 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
   // On compose la requete avec des fragments tagges (postgres.js gere ca)
   const filters: any[] = []
   if (tournoi) filters.push(sql`e.tournoi_id = ${tournoi}`)
-  if (upcoming) filters.push(sql`e.date >= now() AND e.annulation = false`)
+  // Une session est "a venir" tant qu'elle n'a pas ete validee (= aucun score saisi)
+  // et qu'elle n'est pas annulee. Permet aux joueurs de s'inscrire meme apres
+  // l'heure de debut, jusqu'a ce que l'admin saisisse les resultats.
+  if (upcoming) filters.push(sql`
+    e.annulation = false
+    AND NOT EXISTS (SELECT 1 FROM score_evenement s WHERE s.evenement_id = e.id)
+  `)
   if (recent) filters.push(sql`e.date < now()`)
 
   let where = sql``

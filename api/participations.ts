@@ -58,12 +58,20 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
   }
 
   // DELETE
+  // - sans ?utilisateur : l'utilisateur courant se desinscrit lui-meme
+  // - avec ?utilisateur=X : un admin retire l'inscription d'un autre joueur
   const evenement = req.query.evenement ? Number(req.query.evenement) : Number((req.body as any)?.evenement_id)
   if (!evenement) throw new ApiError(400, 'Specify ?evenement')
+
+  const targetUser = req.query.utilisateur ? Number(req.query.utilisateur) : Number(token.uid)
+  if (targetUser !== Number(token.uid)) {
+    if (!token.admin) throw new ApiError(403, 'Admin only')
+  }
+
   await sql`
     delete from participation
-    where utilisateur_id = ${token.uid}
+    where utilisateur_id = ${targetUser}
       and evenement_id = ${evenement}
   `
-  return { ok: true, evenement_id: evenement }
+  return { ok: true, evenement_id: evenement, utilisateur_id: targetUser }
 })

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { evenements, scores, participations } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 import {
   formatDateLong,
   formatPoints,
@@ -15,6 +16,8 @@ import "./SessionResult.css";
 function SessionResult() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user: me } = useAuth();
+  const isAdmin = me?.admin === true;
 
   const [event, setEvent] = useState(null);
   const [rankings, setRankings] = useState([]);
@@ -74,6 +77,10 @@ function SessionResult() {
   const isPast = event ? new Date(event.date).getTime() < Date.now() : false;
   const isCancelled = event?.annulation === true || event?.annulation === "oui";
   const hasResults = rankings.length > 0;
+  // RSVP ouvert tant que la session n'est ni cloturee (scores saisis) ni annulee.
+  // L'heure passee n'est plus un critere : on peut s'inscrire tant que la session
+  // est "active" du point de vue admin.
+  const rsvpOpen = !hasResults && !isCancelled;
 
   const rsvpListVisible = rsvpListOpen || rsvpListHovered;
 
@@ -127,7 +134,7 @@ function SessionResult() {
                     cancel
                   </span>
                 </div>
-              ) : isPast || hasResults ? (
+              ) : !rsvpOpen ? (
                 <div className="session-result-status">
                   <div className="session-result-status-text">
                     <span className="session-result-status-label">Inscrits</span>
@@ -272,18 +279,52 @@ function SessionResult() {
                         ) : (
                           rsvpParticipants.map((p) => (
                             <div key={p.id} className="rsvp-participants-row">
-                              <div
-                                className="rsvp-participants-avatar"
-                                style={{ backgroundColor: avatarColor(p.id) }}
+                              <button
+                                type="button"
+                                className="rsvp-participants-link"
+                                onClick={() => {
+                                  setRsvpListOpen(false);
+                                  setRsvpListHovered(false);
+                                  navigate(`/profile/${p.id}`);
+                                }}
                               >
-                                {initialsOf(p)}
-                              </div>
-                              <div>
-                                <span className="rsvp-participants-name">{fullName(p)}</span>
-                                {p.pseudo && (
-                                  <span className="rsvp-participants-pseudo">{p.pseudo}</span>
-                                )}
-                              </div>
+                                <div
+                                  className="rsvp-participants-avatar"
+                                  style={{ backgroundColor: avatarColor(p.id) }}
+                                >
+                                  {initialsOf(p)}
+                                </div>
+                                <div>
+                                  <span className="rsvp-participants-name">{fullName(p)}</span>
+                                  {p.pseudo && (
+                                    <span className="rsvp-participants-pseudo">{p.pseudo}</span>
+                                  )}
+                                </div>
+                              </button>
+                              {isAdmin && (
+                                <button
+                                  type="button"
+                                  className="rsvp-participants-remove"
+                                  title="Retirer cette inscription"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (!confirm(`Retirer l'inscription de ${fullName(p)} ?`)) return;
+                                    try {
+                                      await participations.remove(id, p.id);
+                                      setRsvpParticipants((list) => list.filter((x) => x.id !== p.id));
+                                      setRsvp((r) => ({
+                                        ...r,
+                                        count: Math.max(0, r.count - 1),
+                                        mine: r.mine && Number(p.id) !== Number(me?.id) ? r.mine : false,
+                                      }));
+                                    } catch (err) {
+                                      alert("Erreur : " + (err.message || "impossible"));
+                                    }
+                                  }}
+                                >
+                                  <span className="material-symbols-outlined">person_remove</span>
+                                </button>
+                              )}
                             </div>
                           ))
                         )}
@@ -338,6 +379,8 @@ function SessionResult() {
                       <div
                         key={player.id}
                         className={`session-ranking-row ${rank === 1 ? "session-ranking-row-winner" : ""}`}
+                        onClick={() => navigate(`/profile/${player.utilisateur_id}`)}
+                        style={{ cursor: "pointer" }}
                       >
                         <div className="session-ranking-rank">
                           <div
