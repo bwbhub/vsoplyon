@@ -60,11 +60,13 @@
   overflow: hidden;
   transition: background-color 300ms;
   border: 1px solid rgba(69, 73, 71, 0.1);
+  width: fit-content;
 }
 
 @media (min-width: 1024px) {
   .next-session {
     grid-column: span 8;
+    width: 100%;
   }
 }
 
@@ -193,6 +195,7 @@
   border: 1px solid rgba(69, 73, 71, 0.1);
   position: relative;
   overflow: hidden;
+  width: fit-content;
 }
 
 @media (min-width: 1024px) {
@@ -321,6 +324,7 @@
   border-radius: 0.75rem;
   padding: 2rem;
   border: 1px solid rgba(69, 73, 71, 0.1);
+  width: fit-content;
 }
 
 .recent-sessions-header {
