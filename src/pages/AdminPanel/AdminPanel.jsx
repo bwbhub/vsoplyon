@@ -5,12 +5,11 @@ import BottomNav from "../../components/BottomNav/BottomNav";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import { useAuth } from "../../context/AuthContext";
-import { users as usersApi, evenements, tournois, scores } from "../../services/api";
+import { users as usersApi } from "../../services/api";
 import {
   initials as initialsOf,
   avatarColor,
   fullName,
-  formatDateShort,
 } from "../../utils/format";
 import "./AdminPanel.css";
 
@@ -24,23 +23,6 @@ function AdminPanel() {
 
   const [newPlayer, setNewPlayer] = useState({ nom: "", prenom: "", mail: "", pseudo: "" });
   const [createStatus, setCreateStatus] = useState(null);
-
-  const [eventsList, setEventsList] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState("");
-  const [sessionResults, setSessionResults] = useState([
-    { utilisateur_id: "", kills: "" },
-    { utilisateur_id: "", kills: "" },
-    { utilisateur_id: "", kills: "" },
-  ]);
-  const [sessionStatus, setSessionStatus] = useState(null);
-
-  // Règle de points : (N − rang + 1) positions + 1 pt / kill + 5 pts bonus 1er
-  const computePoints = (rankIndex, totalRows, kills) => {
-    const rankPoints = Math.max(0, totalRows - rankIndex);
-    const killPoints = Number(kills) || 0;
-    const bonus = rankIndex === 0 ? 5 : 0;
-    return rankPoints + killPoints + bonus;
-  };
 
   // Redirige si non-admin
   useEffect(() => {
@@ -61,7 +43,6 @@ function AdminPanel() {
 
   useEffect(() => {
     refreshPlayers();
-    evenements.list({ limit: 30 }).then(setEventsList).catch(() => setEventsList([]));
   }, []);
 
   const filteredPlayers = useMemo(() => {
@@ -100,61 +81,6 @@ function AdminPanel() {
     }
   };
 
-  const updateResultRow = (index, patch) => {
-    setSessionResults((rows) =>
-      rows.map((r, i) => (i === index ? { ...r, ...patch } : r))
-    );
-  };
-
-  const handleSessionSubmit = async (e) => {
-    e.preventDefault();
-    setSessionStatus(null);
-    if (!selectedEvent) {
-      setSessionStatus({ type: "error", message: "Choisissez une session" });
-      return;
-    }
-    const ev = eventsList.find((x) => String(x.id) === String(selectedEvent));
-    if (!ev) {
-      setSessionStatus({ type: "error", message: "Session introuvable" });
-      return;
-    }
-    try {
-      // On ne garde que les lignes avec un joueur sélectionné — dans l'ordre saisi (1er → dernier)
-      const valid = sessionResults.filter((r) => r.utilisateur_id);
-      if (valid.length === 0) {
-        setSessionStatus({ type: "error", message: "Renseignez au moins un résultat" });
-        return;
-      }
-      const total = valid.length;
-      for (let i = 0; i < total; i++) {
-        const r = valid[i];
-        const kills = Number(r.kills) || 0;
-        const bonus = i === 0 ? 5 : 0;
-        const rankPoints = total - i; // 1er = N, dernier = 1
-        const points = rankPoints + kills + bonus;
-        await scores.create({
-          utilisateur_id: Number(r.utilisateur_id),
-          evenement_id: ev.id,
-          tournoi_id: ev.tournoi_id,
-          points,
-          bonus,
-          kills,
-          score: points,
-          position_sortie: i + 1,
-          repas: "non",
-        });
-      }
-      setSessionStatus({ type: "success", message: "Résultats enregistrés" });
-      setSessionResults([
-        { utilisateur_id: "", kills: "" },
-        { utilisateur_id: "", kills: "" },
-        { utilisateur_id: "", kills: "" },
-      ]);
-    } catch (err) {
-      setSessionStatus({ type: "error", message: err.message || "Erreur" });
-    }
-  };
-
   return (
     <div className="admin-page">
       <Navbar />
@@ -163,7 +89,8 @@ function AdminPanel() {
         <header className="admin-header">
           <h1 className="admin-title">Console d'administration</h1>
           <p className="admin-description">
-            Gérez les membres du club et enregistrez les résultats des sessions.
+            Gérez les membres du club. La saisie des scores se fait directement
+            depuis la page de chaque session.
           </p>
         </header>
 
@@ -238,165 +165,6 @@ function AdminPanel() {
               </form>
             </section>
 
-            <section className="admin-section">
-              <div className="grain-texture"></div>
-              <div className="admin-section-header-with-date">
-                <div className="admin-section-header">
-                  <span
-                    className="material-symbols-outlined admin-section-icon admin-section-icon-tertiary"
-                    style={{ fontVariationSettings: '"FILL" 1' }}
-                  >
-                    history_edu
-                  </span>
-                  <h2 className="admin-section-title">Saisir des résultats</h2>
-                </div>
-              </div>
-
-              <form className="admin-session-form" onSubmit={handleSessionSubmit}>
-                <div className="admin-form-row" style={{ marginBottom: "1rem", gap: "0.75rem" }}>
-                  <div className="input-group" style={{ flex: 2 }}>
-                    <label className="input-label">Session</label>
-                    <div className="input-wrapper">
-                      <select
-                        className="admin-session-select"
-                        value={selectedEvent}
-                        onChange={(e) => setSelectedEvent(e.target.value)}
-                        style={{ width: "100%" }}
-                      >
-                        <option value="">-- choisir une session --</option>
-                        {eventsList.map((ev) => (
-                          <option key={ev.id} value={ev.id}>
-                            {formatDateShort(ev.date)} — {ev.tournoi_nom || "Session"}
-                            {ev.type === "finale" ? " 🏆 FINALE" : ""}
-                            {ev.lieu_nom ? ` (${ev.lieu_nom})` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="input-group" style={{ flex: 1 }}>
-                    <label className="input-label">Type</label>
-                    <div className="input-wrapper">
-                      <select
-                        className="admin-session-select"
-                        value={
-                          eventsList.find((x) => String(x.id) === String(selectedEvent))?.type || "normal"
-                        }
-                        disabled={!selectedEvent}
-                        onChange={async (e) => {
-                          const newType = e.target.value;
-                          if (newType === "finale" &&
-                              !confirm("Marquer cette session comme GRANDE FINALE ?\nCela cloturera la saison apres saisie des scores.")) {
-                            return;
-                          }
-                          try {
-                            await evenements.update(selectedEvent, { type: newType });
-                            // refresh
-                            const list = await evenements.list({ limit: 30 });
-                            setEventsList(list || []);
-                          } catch (err) {
-                            alert("Erreur: " + (err.message || "impossible"));
-                          }
-                        }}
-                        style={{ width: "100%" }}
-                      >
-                        <option value="normal">Normale</option>
-                        <option value="finale">🏆 Grande finale</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {selectedEvent && eventsList.find((x) => String(x.id) === String(selectedEvent))?.type === "finale" && (
-                  <div style={{
-                    padding: "0.75rem 1rem",
-                    background: "rgba(255, 193, 7, 0.08)",
-                    border: "1px solid rgba(255, 193, 7, 0.3)",
-                    borderRadius: "0.5rem",
-                    fontSize: "0.875rem",
-                    marginBottom: "1rem",
-                  }}>
-                    🏆 <strong>Grande finale</strong> — la saison sera cloturee automatiquement et une nouvelle saison demarrera des l'enregistrement des scores.
-                  </div>
-                )}
-
-                <div className="admin-session-entries">
-                  {sessionResults.map((result, index) => (
-                    <div key={index} className="admin-session-entry">
-                      <div className="admin-session-rank">
-                        <span
-                          className={`admin-session-rank-badge ${index === 0 ? "admin-session-rank-badge-first" : ""}`}
-                        >
-                          {index + 1}
-                        </span>
-                      </div>
-                      <div className="admin-session-player">
-                        <select
-                          className="admin-session-select"
-                          value={result.utilisateur_id}
-                          onChange={(e) =>
-                            updateResultRow(index, { utilisateur_id: e.target.value })
-                          }
-                        >
-                          <option value="">Choisir un joueur…</option>
-                          {players.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {fullName(p) || p.pseudo || `#${p.id}`}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="admin-session-points">
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder="Kills"
-                          className="admin-session-input"
-                          value={result.kills}
-                          onChange={(e) =>
-                            updateResultRow(index, { kills: e.target.value })
-                          }
-                        />
-                        <span className="admin-session-pts" title="Points calculés : (N - rang + 1) + kills + 5 bonus 1er">
-                          = {computePoints(index, sessionResults.length, result.kills)} PTS
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: "0.75rem" }}>
-                  <button
-                    type="button"
-                    className="leaderboard-view-more"
-                    onClick={() =>
-                      setSessionResults((r) => [
-                        ...r,
-                        { utilisateur_id: "", kills: "" },
-                      ])
-                    }
-                  >
-                    + Ajouter un joueur
-                  </button>
-                </div>
-
-                {sessionStatus && (
-                  <p
-                    style={{
-                      color: sessionStatus.type === "error" ? "#e57373" : "#88d4cc",
-                      fontSize: "0.875rem",
-                      margin: "0.5rem 0",
-                    }}
-                  >
-                    {sessionStatus.message}
-                  </p>
-                )}
-
-                <div className="admin-session-actions">
-                  <Button variant="secondary">Enregistrer les résultats</Button>
-                </div>
-              </form>
-            </section>
           </div>
 
           <div className="admin-right">

@@ -119,6 +119,143 @@
   font-size: 1.875rem;
 }
 
+/* ----- Admin toolbar (modifier session / saisir scores) ----- */
+.session-admin-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.session-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  background-color: var(--surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--on-surface);
+  border-radius: 0.6rem;
+  font-family: "Manrope", sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+.session-admin-btn:hover:not(:disabled) {
+  border-color: rgba(136, 212, 204, 0.4);
+  background-color: rgba(136, 212, 204, 0.05);
+}
+
+.session-admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.session-admin-btn .material-symbols-outlined { font-size: 1.1rem; }
+
+.session-admin-btn-primary {
+  background-color: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+.session-admin-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ----- Formulaire d'edition de session ----- */
+.session-edit-form {
+  background-color: var(--surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.session-edit-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.session-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .session-edit-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.session-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.session-edit-field > span {
+  font-family: "Manrope", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--on-surface-variant);
+}
+
+.session-edit-field input[type="datetime-local"],
+.session-edit-field select {
+  padding: 0.6rem 0.75rem;
+  background-color: var(--surface-container-high);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  color: var(--on-surface);
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 150ms;
+}
+.session-edit-field input[type="datetime-local"]:focus,
+.session-edit-field select:focus {
+  border-color: var(--primary);
+}
+
+.session-edit-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.session-edit-checkbox > span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--on-surface);
+}
+.session-edit-checkbox input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--primary);
+}
+
+.session-edit-error {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background: rgba(229, 115, 115, 0.08);
+  border: 1px solid rgba(229, 115, 115, 0.3);
+  color: #e57373;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.session-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 /* ----- RSVP "Je viens" button ----- */
 .session-result-rsvp {
   display: flex;

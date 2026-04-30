@@ -111,6 +111,8 @@ export const scores = {
   byUtilisateur: (utilisateur) => request('/scores', { params: { utilisateur } }),
   byTournoi:     (tournoi)     => request('/scores', { params: { tournoi } }),
   create: (data) => request('/scores', { method: 'POST', body: data }),
+  // admin : efface tous les scores d'un evenement (pour re-saisie)
+  clearByEvenement: (evenement) => request('/scores', { method: 'DELETE', params: { evenement } }),
 }
 
 /* -------- Leaderboard -------- */

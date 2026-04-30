@@ -4,7 +4,7 @@ import { sql } from './_lib/db.js'
 import { requireAuth, requireAdmin } from './_lib/auth.js'
 
 export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
-  const method = requireMethod(req, ['GET', 'POST'])
+  const method = requireMethod(req, ['GET', 'POST', 'DELETE'])
 
   if (method === 'GET') {
     requireAuth(req)
@@ -41,6 +41,18 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
       `
     }
     throw new ApiError(400, 'Specify ?evenement, ?utilisateur or ?tournoi')
+  }
+
+  // DELETE -> efface tous les scores d'un evenement (admin only).
+  // Permet de re-saisir un classement complet apres correction.
+  if (method === 'DELETE') {
+    requireAdmin(req)
+    const evenement = req.query.evenement ? Number(req.query.evenement) : null
+    if (!evenement) throw new ApiError(400, 'Specify ?evenement')
+    const deleted = await sql`
+      delete from score_evenement where evenement_id = ${evenement} returning id
+    `
+    return { ok: true, deleted: deleted.length }
   }
 
   // POST -> insertion (admin)

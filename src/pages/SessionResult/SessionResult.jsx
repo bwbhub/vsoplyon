@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BottomNav from "../../components/BottomNav/BottomNav";
-import { evenements, scores, participations } from "../../services/api";
+import { evenements, scores, participations, lieux as lieuxApi } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import ScoreEntry from "../../components/ScoreEntry/ScoreEntry";
 import {
   formatDateLong,
   formatPoints,
@@ -28,6 +29,70 @@ function SessionResult() {
   const [rsvpParticipants, setRsvpParticipants] = useState([]);
   const [rsvpListOpen, setRsvpListOpen] = useState(false);
   const [rsvpListHovered, setRsvpListHovered] = useState(false);
+
+  // Modes admin : edition des metadonnees + saisie des scores
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [enteringScores, setEnteringScores] = useState(false);
+  const [editedMeta, setEditedMeta] = useState({ date: "", lieu_id: "", type: "normal", annulation: false });
+  const [editStatus, setEditStatus] = useState(null);
+  const [lieuxList, setLieuxList] = useState([]);
+
+  // Recharge la session apres saisie de scores ou edition
+  const reloadEvent = async () => {
+    try {
+      const [ev, rows, part] = await Promise.all([
+        evenements.get(id),
+        scores.byEvenement(id),
+        participations.byEvenement(id).catch(() => null),
+      ]);
+      setEvent(ev);
+      setRankings(rows || []);
+      if (part) {
+        setRsvp({ count: part.count, mine: part.mine, loading: false });
+        setRsvpParticipants(part.participants || []);
+      }
+    } catch { /* silencieux */ }
+  };
+
+  // Charge les lieux quand on passe en mode edition
+  useEffect(() => {
+    if (!editingMeta || lieuxList.length > 0) return;
+    lieuxApi.list().then(setLieuxList).catch(() => setLieuxList([]));
+  }, [editingMeta, lieuxList.length]);
+
+  // Initialise le formulaire d'edition avec les valeurs courantes
+  const openEdit = () => {
+    if (!event) return;
+    // Format datetime-local : "YYYY-MM-DDTHH:MM"
+    const d = new Date(event.date);
+    const pad = (n) => String(n).padStart(2, "0");
+    const dt = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    setEditedMeta({
+      date: dt,
+      lieu_id: event.lieu_id ? String(event.lieu_id) : "",
+      type: event.type || "normal",
+      annulation: event.annulation === true || event.annulation === "oui",
+    });
+    setEditStatus(null);
+    setEditingMeta(true);
+  };
+
+  const saveEdit = async () => {
+    setEditStatus(null);
+    try {
+      const payload = {
+        date: new Date(editedMeta.date).toISOString(),
+        lieu_id: editedMeta.lieu_id ? Number(editedMeta.lieu_id) : null,
+        type: editedMeta.type,
+        annulation: editedMeta.annulation,
+      };
+      await evenements.update(id, payload);
+      setEditingMeta(false);
+      await reloadEvent();
+    } catch (err) {
+      setEditStatus({ type: "error", message: err.message || "Erreur" });
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -109,7 +174,110 @@ function SessionResult() {
           <p style={{ color: "#e57373" }}>Impossible de charger la session : {error}</p>
         )}
 
-        {event && (
+        {/* ===== Mode saisie de scores : remplace tout le contenu ===== */}
+        {event && enteringScores && isAdmin && (
+          <ScoreEntry
+            event={event}
+            existingScores={hasResults ? rankings : []}
+            onCancel={() => setEnteringScores(false)}
+            onSaved={async () => {
+              setEnteringScores(false);
+              await reloadEvent();
+            }}
+          />
+        )}
+
+        {/* ===== Toolbar admin (mode normal) ===== */}
+        {event && !enteringScores && isAdmin && !editingMeta && (
+          <div className="session-admin-toolbar">
+            <button
+              type="button"
+              className="session-admin-btn"
+              onClick={openEdit}
+            >
+              <span className="material-symbols-outlined">edit</span>
+              Modifier la session
+            </button>
+            <button
+              type="button"
+              className={`session-admin-btn ${!hasResults ? "session-admin-btn-primary" : ""}`}
+              onClick={() => setEnteringScores(true)}
+              disabled={isCancelled}
+              title={isCancelled ? "Session annulée" : ""}
+            >
+              <span className="material-symbols-outlined">
+                {hasResults ? "edit_note" : "history_edu"}
+              </span>
+              {hasResults ? "Modifier les scores" : "Saisir les scores"}
+            </button>
+          </div>
+        )}
+
+        {/* ===== Formulaire d'edition des metadonnees ===== */}
+        {event && editingMeta && isAdmin && (
+          <div className="session-edit-form">
+            <h2 className="session-edit-title">Modifier la session</h2>
+            <div className="session-edit-grid">
+              <label className="session-edit-field">
+                <span>Date et heure</span>
+                <input
+                  type="datetime-local"
+                  value={editedMeta.date}
+                  onChange={(e) => setEditedMeta((m) => ({ ...m, date: e.target.value }))}
+                />
+              </label>
+              <label className="session-edit-field">
+                <span>Lieu</span>
+                <select
+                  value={editedMeta.lieu_id}
+                  onChange={(e) => setEditedMeta((m) => ({ ...m, lieu_id: e.target.value }))}
+                >
+                  <option value="">— aucun —</option>
+                  {lieuxList.map((l) => (
+                    <option key={l.id} value={l.id}>{l.nom}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="session-edit-field">
+                <span>Type</span>
+                <select
+                  value={editedMeta.type}
+                  onChange={(e) => setEditedMeta((m) => ({ ...m, type: e.target.value }))}
+                >
+                  <option value="normal">Normale</option>
+                  <option value="finale">🏆 Grande finale</option>
+                </select>
+              </label>
+              <label className="session-edit-field session-edit-checkbox">
+                <input
+                  type="checkbox"
+                  checked={editedMeta.annulation}
+                  onChange={(e) => setEditedMeta((m) => ({ ...m, annulation: e.target.checked }))}
+                />
+                <span>Session annulée</span>
+              </label>
+            </div>
+            {editStatus && <p className="session-edit-error">{editStatus.message}</p>}
+            <div className="session-edit-actions">
+              <button
+                type="button"
+                className="score-entry-btn-secondary"
+                onClick={() => setEditingMeta(false)}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                className="score-entry-btn-primary"
+                onClick={saveEdit}
+              >
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        )}
+
+        {event && !enteringScores && (
           <>
             <div className="session-result-header">
               <div>
