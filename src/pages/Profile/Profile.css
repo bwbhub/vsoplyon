@@ -138,7 +138,14 @@
 .profile-stat-icon-warning { background: rgba(255, 178, 91, 0.12); color: #ffb25b; }
 .profile-stat-icon-success { background: rgba(124, 217, 168, 0.12); color: #7cd9a8; }
 
-.profile-stat-content { display: flex; flex-direction: column; gap: 0.15rem; z-index: 1; }
+.profile-stat-content { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0.15rem; 
+  z-index: 1; 
+  align-items: center; 
+  text-align: center; 
+}
 
 .profile-stat-value {
   font-family: "Manrope", sans-serif;
