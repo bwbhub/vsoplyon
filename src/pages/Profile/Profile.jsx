@@ -161,7 +161,7 @@ function Profile() {
           />
           <StatCard
             icon="style"
-            label="Flush"
+            label="Quinte flush"
             value={loading ? "—" : (stat?.total_flush ?? 0)}
             accent="tertiary"
           />
@@ -185,7 +185,7 @@ function Profile() {
                 const meta = {
                   carre:        { icon: "grid_view",    label: "Premier carré",              accent: "primary" },
                   royal_flush:  { icon: "auto_awesome", label: "Première quinte flush royale", accent: "warning" },
-                  flush:        { icon: "style",        label: "Première couleur",           accent: "tertiary" },
+                  flush:        { icon: "style",        label: "Première quinte flush",     accent: "tertiary" },
                 }[a.hand] || { icon: "military_tech", label: a.hand, accent: "primary" };
                 return (
                   <div key={`${a.hand}-${a.tournoi_id}`} className={`profile-achievement profile-achievement-${meta.accent}`}>

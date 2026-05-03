@@ -537,7 +537,7 @@ function SessionResult() {
                           <span className="session-hands-tag">RF</span>
                           {totalRoyalFlush}
                         </span>
-                        <span className="session-hands-item" title="Flush">
+                        <span className="session-hands-item" title="Quinte flush">
                           <span className="session-hands-tag">F</span>
                           {totalFlush}
                         </span>

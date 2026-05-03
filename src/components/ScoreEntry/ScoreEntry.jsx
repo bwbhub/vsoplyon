@@ -499,7 +499,7 @@ function ScoreEntry({ event, existingScores = [], onCancel, onSaved }) {
                         onChange={(e) => setHand(uid, "royal_flush", e.target.value)}
                       />
                     </label>
-                    <label className="score-entry-chip score-entry-chip-hand" title="Flush">
+                    <label className="score-entry-chip score-entry-chip-hand" title="Quinte flush">
                       <span className="score-entry-chip-tag">F</span>
                       <input
                         type="number"
