@@ -18,14 +18,17 @@ export default withApi(async (req: VercelRequest, _res: VercelResponse) => {
   const limit = clampLimit(req.query.limit)
 
   if (tournoi) {
+    // Utilise score_evenement.score (= points saisis, bonus non dupliqué)
+    // score_tournoi view utilisait sum(points + bonus) ce qui double-comptait
+    // le bonus du 1er de chaque session (il était déjà inclus dans points).
     return await sql`
       SELECT u.id, u.nom, u.prenom, u.pseudo,
-             coalesce(st.points, 0) AS points,
-             coalesce(st.bonus, 0)  AS bonus,
-             coalesce(st.points, 0) + coalesce(st.bonus, 0) AS total
-      FROM score_tournoi st
-      JOIN utilisateur u ON u.id = st.utilisateur_id
-      WHERE st.tournoi_id = ${tournoi}
+             coalesce(sum(s.score), 0) AS total,
+             count(s.id)               AS participations
+      FROM utilisateur u
+      JOIN score_evenement s ON s.utilisateur_id = u.id
+      WHERE s.tournoi_id = ${tournoi}
+      GROUP BY u.id
       ORDER BY total DESC, u.nom ASC
       LIMIT ${limit}
     `

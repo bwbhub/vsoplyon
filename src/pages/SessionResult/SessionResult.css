@@ -386,7 +386,24 @@
 
 @media (min-width: 768px) {
   .session-insights {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .session-insights-secondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .session-insight-hands,
+  .session-insight-bounty {
+    grid-column: 1 / -1;
+  }
+
+  .session-insight-primary {
+    justify-content: flex-start;
+    gap: 1.25rem;
   }
 }
 
@@ -471,7 +488,7 @@
 .session-insights-secondary {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .session-insight-card {

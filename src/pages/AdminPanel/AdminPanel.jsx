@@ -21,6 +21,13 @@ function AdminPanel() {
   const [loadingPlayers, setLoadingPlayers] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const generateMail = (prenom, nom) => {
+    const p = (prenom || "").trim().toLowerCase().replace(/\s+/g, "");
+    const n = (nom || "").trim().toLowerCase().replace(/\s+/g, "").slice(0, 3);
+    if (!p && !n) return "";
+    return `${p}${n}@poker.fr`;
+  };
+
   const [newPlayer, setNewPlayer] = useState({ nom: "", prenom: "", mail: "", pseudo: "" });
   const [createStatus, setCreateStatus] = useState(null);
 
@@ -114,18 +121,28 @@ function AdminPanel() {
                     type="text"
                     placeholder="ex. Julien"
                     value={newPlayer.prenom}
-                    onChange={(e) =>
-                      setNewPlayer({ ...newPlayer, prenom: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const prenom = e.target.value;
+                      setNewPlayer((prev) => {
+                        const currentAuto = generateMail(prev.prenom, prev.nom);
+                        const shouldAuto = !prev.mail || prev.mail === currentAuto;
+                        return { ...prev, prenom, mail: shouldAuto ? generateMail(prenom, prev.nom) : prev.mail };
+                      });
+                    }}
                   />
                   <Input
                     label="Nom"
                     type="text"
                     placeholder="ex. Martin"
                     value={newPlayer.nom}
-                    onChange={(e) =>
-                      setNewPlayer({ ...newPlayer, nom: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const nom = e.target.value;
+                      setNewPlayer((prev) => {
+                        const currentAuto = generateMail(prev.prenom, prev.nom);
+                        const shouldAuto = !prev.mail || prev.mail === currentAuto;
+                        return { ...prev, nom, mail: shouldAuto ? generateMail(prev.prenom, nom) : prev.mail };
+                      });
+                    }}
                   />
                 </div>
                 <div className="admin-form-row">
