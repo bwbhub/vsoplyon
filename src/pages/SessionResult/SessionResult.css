@@ -386,24 +386,26 @@
 
 @media (min-width: 768px) {
   .session-insights {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .session-insights-secondary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
-    align-content: start;
-  }
-
-  .session-insight-hands,
-  .session-insight-bounty {
-    grid-column: 1 / -1;
   }
 
   .session-insight-primary {
+    grid-column: span 3;
     justify-content: flex-start;
     gap: 1.25rem;
+  }
+
+  /* rsvp-tile-wrapper (col 4) et session-insight-card-present (col 5) : span 1 par défaut */
+
+  /* Row 2 : Points (col 1) + Mains (col 2) + Bounty (cols 3-5) */
+  .session-insight-bounty {
+    grid-column: span 3;
+  }
+
+  /* Cas sans bounty hunter : Mains prend le reste de la ligne */
+  .session-insight-hands-wide {
+    grid-column: span 4;
   }
 }
 

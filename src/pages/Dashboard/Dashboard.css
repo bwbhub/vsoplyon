@@ -327,6 +327,12 @@
   width: fit-content;
 }
 
+@media (min-width: 1024px) {
+  .recent-sessions {
+    width: 100%;
+  }
+}
+
 .recent-sessions-header {
   display: flex;
   justify-content: space-between;

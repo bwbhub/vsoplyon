@@ -386,22 +386,8 @@ function SessionResult() {
                 <div className="session-insight-glow"></div>
               </div>
 
-              <div className="session-insights-secondary">
-                <div className="session-insight-card">
-                  <div>
-                    <span className="session-insight-card-label">
-                      Joueurs présents
-                    </span>
-                    <div className="session-insight-card-value">
-                      {rankings.length}
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined session-insight-card-icon">
-                    groups
-                  </span>
-                </div>
-
-                <div
+              {/* Joueurs inscrits — bento row 1 col 2 */}
+              <div
                   className="rsvp-tile-wrapper"
                   onMouseEnter={() => setRsvpListHovered(true)}
                   onMouseLeave={() => setRsvpListHovered(false)}
@@ -506,10 +492,22 @@ function SessionResult() {
                   )}
                 </div>
 
-                <div className="session-insight-card">
-                  <div>
-                    <span className="session-insight-card-label">
-                      Points distribués
+              {/* Joueurs présents — bento row 1 col 3 */}
+              <div className="session-insight-card session-insight-card-present">
+                <div>
+                  <span className="session-insight-card-label">Joueurs présents</span>
+                  <div className="session-insight-card-value">{rankings.length}</div>
+                </div>
+                <span className="material-symbols-outlined session-insight-card-icon">
+                  groups
+                </span>
+              </div>
+
+              {/* Points distribués — bento row 2 col 1 */}
+              <div className="session-insight-card session-insight-card-points">
+                <div>
+                  <span className="session-insight-card-label">
+                    Points distribués
                     </span>
                     <div className="session-insight-card-value session-insight-card-value-primary">
                       {formatPoints(totalPoints)}
@@ -523,7 +521,7 @@ function SessionResult() {
 
                 {/* Mains remarquables — totaux sans nominer les joueurs */}
                 {hasResults && (
-                  <div className="session-insight-card session-insight-hands">
+                  <div className={`session-insight-card session-insight-hands${!bountyHunter ? " session-insight-hands-wide" : ""}`}>
                     <div>
                       <span className="session-insight-card-label">
                         Mains remarquables
@@ -593,7 +591,6 @@ function SessionResult() {
                     </span>
                   </div>
                 )}
-              </div>
             </div>
 
             <div className="session-rankings">
