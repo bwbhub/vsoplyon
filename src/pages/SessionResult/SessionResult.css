@@ -328,6 +328,14 @@
   font-weight: 600;
 }
 
+/* ----- Actions header (inscrits + RSVP côte à côte) ----- */
+.session-result-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
 /* ----- RSVP "Je viens" button ----- */
 .session-result-rsvp {
   display: flex;
@@ -390,22 +398,44 @@
     gap: 1rem;
   }
 
+  /* ---- Ligne 1 ---- */
   .session-insight-primary {
-    grid-column: span 3;
+    grid-column: 1 / span 3;
+    grid-row: 1;
     justify-content: flex-start;
     gap: 1.25rem;
   }
 
-  /* rsvp-tile-wrapper (col 4) et session-insight-card-present (col 5) : span 1 par défaut */
-
-  /* Row 2 : Points (col 1) + Mains (col 2) + Bounty (cols 3-5) */
-  .session-insight-bounty {
-    grid-column: span 3;
+  .rsvp-tile-wrapper {
+    grid-column: 4;
+    grid-row: 1;
   }
 
-  /* Cas sans bounty hunter : Mains prend le reste de la ligne */
+  .session-insight-card-present {
+    grid-column: 5;
+    grid-row: 1;
+  }
+
+  /* ---- Ligne 2 ---- */
+  .session-insight-card-points {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .session-insight-hands {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .session-insight-bounty {
+    grid-column: 3 / span 3;
+    grid-row: 2;
+  }
+
+  /* Sans bounty hunter : Mains remplit le reste de la ligne */
   .session-insight-hands-wide {
-    grid-column: span 4;
+    grid-column: 2 / span 4;
+    grid-row: 2;
   }
 }
 

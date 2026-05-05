@@ -162,6 +162,73 @@ function SessionResult() {
   const INITIAL_VISIBLE = 5;
   const visible = showAll ? rankings : rankings.slice(0, INITIAL_VISIBLE);
 
+  const rsvpParticipantsPopup = rsvpListVisible ? (
+    <div
+      className="rsvp-participants-popup"
+      onMouseEnter={() => setRsvpListHovered(true)}
+      onMouseLeave={() => setRsvpListHovered(false)}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="rsvp-participants-header">
+        <span className="rsvp-participants-title">Inscrits ({rsvp.count})</span>
+        <button
+          type="button"
+          className="rsvp-participants-close"
+          onClick={() => { setRsvpListOpen(false); setRsvpListHovered(false); }}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div className="rsvp-participants-list">
+        {rsvpParticipants.length === 0 ? (
+          <p className="rsvp-participants-empty">Aucun joueur inscrit</p>
+        ) : (
+          rsvpParticipants.map((p) => (
+            <div key={p.id} className="rsvp-participants-row">
+              <button
+                type="button"
+                className="rsvp-participants-link"
+                onClick={() => { setRsvpListOpen(false); setRsvpListHovered(false); navigate(`/profile/${p.id}`); }}
+              >
+                <div className="rsvp-participants-avatar" style={{ backgroundColor: avatarColor(p.id) }}>
+                  {initialsOf(p)}
+                </div>
+                <div>
+                  <span className="rsvp-participants-name">{fullName(p)}</span>
+                  {p.pseudo && <span className="rsvp-participants-pseudo">{p.pseudo}</span>}
+                </div>
+              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="rsvp-participants-remove"
+                  title="Retirer cette inscription"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (!confirm(`Retirer l'inscription de ${fullName(p)} ?`)) return;
+                    try {
+                      await participations.remove(id, p.id);
+                      setRsvpParticipants((list) => list.filter((x) => x.id !== p.id));
+                      setRsvp((r) => ({
+                        ...r,
+                        count: Math.max(0, r.count - 1),
+                        mine: r.mine && Number(p.id) !== Number(me?.id) ? r.mine : false,
+                      }));
+                    } catch (err) {
+                      alert("Erreur : " + (err.message || "impossible"));
+                    }
+                  }}
+                >
+                  <span className="material-symbols-outlined">person_remove</span>
+                </button>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div className="session-result-page">
       <Navbar />
@@ -323,30 +390,56 @@ function SessionResult() {
                   </span>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  className={`session-result-rsvp ${rsvp.mine ? "session-result-rsvp-active" : ""}`}
-                  onClick={toggleRsvp}
-                  disabled={rsvp.loading}
-                >
-                  <div className="session-result-rsvp-text">
-                    <span className="session-result-rsvp-label">
-                      {rsvp.count} inscrit{rsvp.count > 1 ? "s" : ""}
-                    </span>
-                    <span className="session-result-rsvp-value">
-                      {rsvp.mine ? "✓ Tu participes" : "Je viens"}
-                    </span>
-                  </div>
-                  <span
-                    className="material-symbols-outlined session-result-rsvp-icon"
-                    style={{ fontVariationSettings: '"FILL" 1' }}
+                <div className="session-result-header-actions">
+                  <div
+                    className="rsvp-tile-wrapper"
+                    onMouseEnter={() => setRsvpListHovered(true)}
+                    onMouseLeave={() => setRsvpListHovered(false)}
                   >
-                    {rsvp.mine ? "check_circle" : "add_circle"}
-                  </span>
-                </button>
+                    <button
+                      type="button"
+                      className="session-result-rsvp"
+                      onClick={() => setRsvpListOpen((v) => !v)}
+                    >
+                      <div className="session-result-rsvp-text">
+                        <span className="session-result-rsvp-label">Joueurs inscrits</span>
+                        <span className="session-result-rsvp-value">{rsvp.count}</span>
+                      </div>
+                      <span
+                        className="material-symbols-outlined session-result-rsvp-icon"
+                        style={{ fontVariationSettings: '"FILL" 1' }}
+                      >
+                        how_to_reg
+                      </span>
+                    </button>
+                    {rsvpParticipantsPopup}
+                  </div>
+                  <button
+                    type="button"
+                    className={`session-result-rsvp ${rsvp.mine ? "session-result-rsvp-active" : ""}`}
+                    onClick={toggleRsvp}
+                    disabled={rsvp.loading}
+                  >
+                    <div className="session-result-rsvp-text">
+                      <span className="session-result-rsvp-label">
+                        {rsvp.count} inscrit{rsvp.count > 1 ? "s" : ""}
+                      </span>
+                      <span className="session-result-rsvp-value">
+                        {rsvp.mine ? "✓ Tu participes" : "Je viens"}
+                      </span>
+                    </div>
+                    <span
+                      className="material-symbols-outlined session-result-rsvp-icon"
+                      style={{ fontVariationSettings: '"FILL" 1' }}
+                    >
+                      {rsvp.mine ? "check_circle" : "add_circle"}
+                    </span>
+                  </button>
+                </div>
               )}
             </div>
 
+            {hasResults && (
             <div className="session-insights">
               <div className="session-insight-primary">
                 <div>
@@ -413,83 +506,7 @@ function SessionResult() {
                     </span>
                   </button>
 
-                  {rsvpListVisible && (
-                    <div
-                      className="rsvp-participants-popup"
-                      onMouseEnter={() => setRsvpListHovered(true)}
-                      onMouseLeave={() => setRsvpListHovered(false)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="rsvp-participants-header">
-                        <span className="rsvp-participants-title">
-                          Inscrits ({rsvp.count})
-                        </span>
-                        <button
-                          type="button"
-                          className="rsvp-participants-close"
-                          onClick={() => { setRsvpListOpen(false); setRsvpListHovered(false); }}
-                        >
-                          <span className="material-symbols-outlined">close</span>
-                        </button>
-                      </div>
-                      <div className="rsvp-participants-list">
-                        {rsvpParticipants.length === 0 ? (
-                          <p className="rsvp-participants-empty">Aucun joueur inscrit</p>
-                        ) : (
-                          rsvpParticipants.map((p) => (
-                            <div key={p.id} className="rsvp-participants-row">
-                              <button
-                                type="button"
-                                className="rsvp-participants-link"
-                                onClick={() => {
-                                  setRsvpListOpen(false);
-                                  setRsvpListHovered(false);
-                                  navigate(`/profile/${p.id}`);
-                                }}
-                              >
-                                <div
-                                  className="rsvp-participants-avatar"
-                                  style={{ backgroundColor: avatarColor(p.id) }}
-                                >
-                                  {initialsOf(p)}
-                                </div>
-                                <div>
-                                  <span className="rsvp-participants-name">{fullName(p)}</span>
-                                  {p.pseudo && (
-                                    <span className="rsvp-participants-pseudo">{p.pseudo}</span>
-                                  )}
-                                </div>
-                              </button>
-                              {isAdmin && (
-                                <button
-                                  type="button"
-                                  className="rsvp-participants-remove"
-                                  title="Retirer cette inscription"
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    if (!confirm(`Retirer l'inscription de ${fullName(p)} ?`)) return;
-                                    try {
-                                      await participations.remove(id, p.id);
-                                      setRsvpParticipants((list) => list.filter((x) => x.id !== p.id));
-                                      setRsvp((r) => ({
-                                        ...r,
-                                        count: Math.max(0, r.count - 1),
-                                        mine: r.mine && Number(p.id) !== Number(me?.id) ? r.mine : false,
-                                      }));
-                                    } catch (err) {
-                                      alert("Erreur : " + (err.message || "impossible"));
-                                    }
-                                  }}
-                                >
-                                  <span className="material-symbols-outlined">person_remove</span>
-                                </button>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  {rsvpParticipantsPopup}
                 </div>
 
               {/* Joueurs présents — bento row 1 col 3 */}
@@ -592,6 +609,7 @@ function SessionResult() {
                   </div>
                 )}
             </div>
+            )}
 
             <div className="session-rankings">
               <div className="session-rankings-header">
