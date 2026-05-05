@@ -400,20 +400,32 @@
 
   /* ---- Ligne 1 ---- */
   .session-insight-primary {
-    grid-column: 1 / span 3;
+    grid-column: 1 / span 4;
     grid-row: 1;
     justify-content: flex-start;
     gap: 1.25rem;
   }
 
-  .rsvp-tile-wrapper {
-    grid-column: 4;
-    grid-row: 1;
-  }
-
-  .session-insight-card-present {
+  .session-insight-right-col {
     grid-column: 5;
     grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .session-insight-right-col > * {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .session-insight-right-col .rsvp-tile-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .session-insight-right-col button.session-insight-card-interactive {
+    flex: 1;
   }
 
   /* ---- Ligne 2 ---- */

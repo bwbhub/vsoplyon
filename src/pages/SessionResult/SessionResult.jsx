@@ -479,7 +479,8 @@ function SessionResult() {
                 <div className="session-insight-glow"></div>
               </div>
 
-              {/* Joueurs inscrits — bento row 1 col 2 */}
+              <div className="session-insight-right-col">
+              {/* Joueurs inscrits */}
               <div
                   className="rsvp-tile-wrapper"
                   onMouseEnter={() => setRsvpListHovered(true)}
@@ -509,7 +510,7 @@ function SessionResult() {
                   {rsvpParticipantsPopup}
                 </div>
 
-              {/* Joueurs présents — bento row 1 col 3 */}
+              {/* Joueurs présents */}
               <div className="session-insight-card session-insight-card-present">
                 <div>
                   <span className="session-insight-card-label">Joueurs présents</span>
@@ -518,6 +519,7 @@ function SessionResult() {
                 <span className="material-symbols-outlined session-insight-card-icon">
                   groups
                 </span>
+              </div>
               </div>
 
               {/* Points distribués — bento row 2 col 1 */}
